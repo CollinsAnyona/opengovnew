@@ -1,0 +1,31 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.routes.auth import router as auth_router
+from app.routes.budgets import router as budget_router
+from app.routes.feedback import router as feedback_router
+from app.routes.ai import router as ai_router
+from app.routes.sectors import router as sectors_router
+from app.db.session import engine
+from app.db.base import Base
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="OpenGov")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth_router)
+app.include_router(budget_router)
+app.include_router(feedback_router)
+app.include_router(ai_router)
+app.include_router(sectors_router)
+
+@app.get("/")
+def health_check():
+    return {"status": "healthy"}
