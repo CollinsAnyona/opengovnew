@@ -12,3 +12,4 @@ class Budget(Base):
     description = Column(String, nullable=False)
     
     sector = relationship("Sector", back_populates="budgets")
+    expenditures = relationship("Expenditure", back_populates="budget")

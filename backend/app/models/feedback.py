@@ -8,6 +8,8 @@ class FeedbackStatus(enum.Enum):
     submitted = "submitted"
     flagged = "flagged"
     approved = "approved"
+    under_review = "under_review"
+    escalated = "escalated"
 
 class Feedback(Base):
     __tablename__ = "feedback"
@@ -21,3 +23,4 @@ class Feedback(Base):
     
     user = relationship("User")
     sector = relationship("Sector", back_populates="feedback")
+    ai_analysis = relationship("AIAnalysis", back_populates="feedback", uselist=False)

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Form
 from sqlalchemy.orm import Session
 from app.schemas.user import UserCreate, UserRead
 from app.models.user import User
-from app.core.security import hash_password, verify_password, create_access_token
+from app.core.security import hash_password, verify_password, create_access_token, verify_token
 from app.db.session import SessionLocal
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -36,5 +36,12 @@ def login(email: str = Form(), password: str = Form(), db: Session = Depends(get
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    access_token = create_access_token(data={"sub": str(user.id), "role": user.role.value})
+    access_token = create_access_token(data={"sub": str(user.id), "role": user.role.value, "name": user.name})
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/me", response_model=UserRead)
+def get_current_user(token_data: dict = Depends(verify_token), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == int(token_data["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

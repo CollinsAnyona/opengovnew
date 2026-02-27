@@ -2,11 +2,13 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from app.schemas.budget import BudgetCreate, BudgetRead
+from app.schemas.analytics import BudgetAnalyticsResponse
 from app.models.budget import Budget
 from app.models.sector import Sector
 from app.models.user import UserRole
 from app.core.security import verify_token
 from app.db.session import SessionLocal
+from app.services.analytics_service import AnalyticsService
 
 router = APIRouter(prefix="/budgets", tags=["budgets"])
 
@@ -38,6 +40,17 @@ def get_budgets(
             raise HTTPException(status_code=404, detail="Sector not found")
         query = query.filter(Budget.sector_id == sector_obj.id)
     return query.all()
+
+@router.get("/analytics", response_model=BudgetAnalyticsResponse)
+def get_budget_analytics(
+    sector: str = Query(...),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    result = AnalyticsService.calculate_budget_analytics(db, sector)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Sector not found")
+    return result
 
 @router.post("/", response_model=BudgetRead)
 def create_budget(

@@ -1,26 +1,29 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Feedback from './pages/Feedback';
 import Admin from './pages/Admin';
-import ProtectedRoute from './components/ProtectedRoute';
-import Navigation from './components/Navigation';
+import Expenditures from './pages/Expenditures';
+import ProtectedRoute from './auth/ProtectedRoute';
+import AdminRoute from './auth/AdminRoute';
+import Layout from './components/Layout';
 
 function App() {
-  const isAuthenticated = localStorage.getItem('access_token');
-
   return (
     <Router>
-      <Navigation />
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout>
+                <Dashboard />
+              </Layout>
             </ProtectedRoute>
           } 
         />
@@ -28,22 +31,30 @@ function App() {
           path="/feedback" 
           element={
             <ProtectedRoute>
-              <Feedback />
+              <Layout>
+                <Feedback />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/expenditures" 
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Expenditures />
+              </Layout>
             </ProtectedRoute>
           } 
         />
         <Route 
           path="/admin" 
           element={
-            <ProtectedRoute>
-              <Admin />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/" 
-          element={
-            <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
+            <AdminRoute>
+              <Layout>
+                <Admin />
+              </Layout>
+            </AdminRoute>
           } 
         />
       </Routes>
