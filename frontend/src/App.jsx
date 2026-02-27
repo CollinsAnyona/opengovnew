@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Feedback from './pages/Feedback';
 import Admin from './pages/Admin';
+import SuperAdmin from './pages/SuperAdmin';
 import Expenditures from './pages/Expenditures';
 import Forum from './pages/Forum';
 import ForumPost from './pages/ForumPost';
@@ -64,6 +65,14 @@ function App() {
           element={
             <Layout>
               <Admin />
+            </Layout>
+          } 
+        />
+        <Route 
+          path="/super-admin" 
+          element={
+            <Layout>
+              <SuperAdmin />
             </Layout>
           } 
         />

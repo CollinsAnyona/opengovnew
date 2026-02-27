@@ -8,6 +8,7 @@ from app.routes.ai_insights import router as ai_insights_router
 from app.routes.sectors import router as sectors_router
 from app.routes.expenditures import router as expenditures_router
 from app.routes.forum import router as forum_router
+from app.routes.super_admin import router as super_admin_router
 from app.db.session import engine
 from app.db.base import Base
 
@@ -31,6 +32,7 @@ app.include_router(ai_insights_router)
 app.include_router(sectors_router)
 app.include_router(expenditures_router)
 app.include_router(forum_router)
+app.include_router(super_admin_router)
 
 @app.get("/")
 def health_check():

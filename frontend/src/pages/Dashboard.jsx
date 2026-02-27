@@ -3,13 +3,30 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Toolti
 import apiClient from '../api/apiClient';
 
 function Dashboard() {
-  const [sector, setSector] = useState('education');
+  const [sector, setSector] = useState('');
+  const [sectors, setSectors] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [expenditures, setExpenditures] = useState([]);
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const response = await apiClient.get('/sectors');
+        setSectors(response.data);
+        if (response.data.length > 0 && !sector) {
+          setSector(response.data[0].name);
+        }
+      } catch (error) {
+        console.error('Failed to fetch sectors:', error);
+      }
+    };
+    fetchSectors();
+  }, []);
+
+  useEffect(() => {
+    if (!sector) return;
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -110,8 +127,11 @@ function Dashboard() {
               outline: 'none'
             }}
           >
-            <option value="education">Ministry of Education</option>
-            <option value="health">Ministry of Health</option>
+            {sectors.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name.charAt(0).toUpperCase() + s.name.slice(1)}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -141,6 +161,111 @@ function Dashboard() {
             <div style={{ color: '#999', fontSize: '13px' }}>Budget execution rate</div>
           </div>
         </div>
+
+        {/* AI Summary Section - Citizen Version */}
+        {totalBudget > 0 && (
+          <div style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)', border: '2px solid #93c5fd', borderRadius: '12px', padding: '28px', marginBottom: '30px', boxShadow: '0 2px 8px rgba(59, 130, 246, 0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+              <h3 style={{ color: '#1e40af', fontSize: '20px', fontWeight: '700', margin: '0' }}>
+                Understanding Your Government Budget
+              </h3>
+            </div>
+            
+            {/* Main Explanation */}
+            <div style={{ background: '#ffffff', borderRadius: '8px', padding: '24px', marginBottom: '20px', border: '2px solid #bfdbfe' }}>
+              <div style={{ color: '#0066cc', fontSize: '15px', fontWeight: '700', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0066cc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                What This Means For You
+              </div>
+              <p style={{ color: '#1a1a1a', fontSize: '17px', lineHeight: '1.9', margin: '0 0 16px 0' }}>
+                The government has allocated <strong style={{ color: '#0066cc' }}>KSh {totalBudget.toLocaleString()}</strong> for the {sector === 'education' ? 'Ministry of Education' : 'Ministry of Health'} this fiscal year. 
+                {utilizationRate < 50 
+                  ? ` So far, only KSh ${totalSpent.toLocaleString()} (${utilizationRate}%) has been spent. This means KSh ${remaining.toLocaleString()} is still available for ${sector} services in your community.`
+                  : utilizationRate < 80
+                  ? ` Currently, KSh ${totalSpent.toLocaleString()} (${utilizationRate}%) has been used for ${sector} programs. There is still KSh ${remaining.toLocaleString()} remaining to serve citizens.`
+                  : ` Most of the budget has been utilized - KSh ${totalSpent.toLocaleString()} (${utilizationRate}%) has been spent, leaving KSh ${remaining.toLocaleString()} for the rest of the year.`
+                }
+              </p>
+              <div style={{ padding: '12px 16px', background: '#f0f9ff', borderLeft: '4px solid #0066cc', borderRadius: '4px', display: 'flex', gap: '12px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <p style={{ color: '#1e40af', fontSize: '14px', margin: '0', fontWeight: '500' }}>
+                  <strong>Transparency Note:</strong> This budget comes from your taxes and is meant to improve {sector === 'education' ? 'schools, teachers, and learning materials' : 'hospitals, healthcare workers, and medical services'} across Kenya.
+                </p>
+              </div>
+            </div>
+
+            {/* Citizen Insights */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+              <div style={{ background: '#ffffff', borderRadius: '8px', padding: '20px', border: '1px solid #e0e7ff' }}>
+                <div style={{ color: '#059669', fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  Budget Status
+                </div>
+                <p style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: '0' }}>
+                  {utilizationRate < 30 
+                    ? 'Spending is low. The government should speed up project implementation to serve citizens better.'
+                    : utilizationRate < 70
+                    ? 'Budget execution is on track. Funds are being used as planned throughout the year.'
+                    : utilizationRate < 90
+                    ? 'Most funds have been used. The government is actively delivering services with the allocated budget.'
+                    : 'Budget is nearly exhausted. Planning for next fiscal year should begin soon.'}
+                </p>
+              </div>
+              
+              <div style={{ background: '#ffffff', borderRadius: '8px', padding: '20px', border: '1px solid #e0e7ff' }}>
+                <div style={{ color: '#0066cc', fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0066cc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  Your Voice Matters
+                </div>
+                <p style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: '0' }}>
+                  {feedback.length === 0
+                    ? 'No citizen feedback yet. Be the first to share your thoughts on how this budget is being used in your area!'
+                    : `${feedback.length} citizens have already shared feedback. Join the conversation and help improve government accountability!`}
+                </p>
+              </div>
+              
+              <div style={{ background: '#ffffff', borderRadius: '8px', padding: '20px', border: '1px solid #e0e7ff' }}>
+                <div style={{ color: '#7c3aed', fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                  Take Action
+                </div>
+                <p style={{ color: '#666', fontSize: '15px', lineHeight: '1.7', margin: '0 0 12px 0' }}>
+                  You can help ensure this money serves your community well. Share your observations and concerns.
+                </p>
+                <button
+                  onClick={() => window.location.href = '/feedback'}
+                  style={{ padding: '8px 16px', background: '#0066cc', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  Submit Feedback
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Charts Section */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px', marginBottom: '30px' }}>

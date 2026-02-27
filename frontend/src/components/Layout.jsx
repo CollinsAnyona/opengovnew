@@ -55,7 +55,7 @@ const Layout = ({ children }) => {
                     margin: 0,
                     lineHeight: '1.2'
                   }}>
-                    Republic of Kenya
+                    OpenGov
                   </h1>
                   <p style={{ 
                     fontSize: '12px', 
@@ -144,6 +144,22 @@ const Layout = ({ children }) => {
                   }}
                 >
                   Admin
+                </Link>
+                <Link 
+                  to="/super-admin" 
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s',
+                    background: isActive('/super-admin') ? '#7c3aed' : 'transparent',
+                    color: isActive('/super-admin') ? '#ffffff' : '#333333',
+                    border: isActive('/super-admin') ? 'none' : '1px solid #7c3aed'
+                  }}
+                >
+                  Super Admin
                 </Link>
               </div>
             </div>
