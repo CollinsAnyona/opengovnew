@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard';
 import Feedback from './pages/Feedback';
 import Admin from './pages/Admin';
 import Expenditures from './pages/Expenditures';
+import Forum from './pages/Forum';
+import ForumPost from './pages/ForumPost';
 import ProtectedRoute from './auth/ProtectedRoute';
 import AdminRoute from './auth/AdminRoute';
 import Layout from './components/Layout';
@@ -38,6 +40,22 @@ function App() {
           element={
             <Layout>
               <Expenditures />
+            </Layout>
+          } 
+        />
+        <Route 
+          path="/forum" 
+          element={
+            <Layout>
+              <Forum />
+            </Layout>
+          } 
+        />
+        <Route 
+          path="/forum/:id" 
+          element={
+            <Layout>
+              <ForumPost />
             </Layout>
           } 
         />

@@ -7,7 +7,6 @@ function Dashboard() {
   const [budgets, setBudgets] = useState([]);
   const [expenditures, setExpenditures] = useState([]);
   const [feedback, setFeedback] = useState([]);
-  const [aiInsights, setAiInsights] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -43,11 +42,11 @@ function Dashboard() {
   };
 
   const feedbackByStatus = [
-    { name: 'Submitted', value: feedback.filter(f => f.status === 'submitted').length, color: '#64748b' },
+    { name: 'Submitted', value: feedback.filter(f => f.status === 'submitted').length, color: '#0066cc' },
     { name: 'Under Review', value: feedback.filter(f => f.status === 'under_review').length, color: '#f59e0b' },
-    { name: 'Approved', value: feedback.filter(f => f.status === 'approved').length, color: '#10b981' },
-    { name: 'Flagged', value: feedback.filter(f => f.status === 'flagged').length, color: '#ef4444' },
-    { name: 'Escalated', value: feedback.filter(f => f.status === 'escalated').length, color: '#dc2626' }
+    { name: 'Approved', value: feedback.filter(f => f.status === 'approved').length, color: '#059669' },
+    { name: 'Flagged', value: feedback.filter(f => f.status === 'flagged').length, color: '#dc2626' },
+    { name: 'Escalated', value: feedback.filter(f => f.status === 'escalated').length, color: '#991b1b' }
   ].filter(item => item.value > 0);
 
   const budgetChartData = budgets.map(b => ({
@@ -63,127 +62,116 @@ function Dashboard() {
   const remaining = totalBudget - totalSpent;
   const utilizationRate = totalBudget > 0 ? ((totalSpent / totalBudget) * 100).toFixed(1) : 0;
 
-  const getAISummary = () => {
-    if (totalBudget === 0) return "No budget data available for this sector yet.";
-    
-    const summary = `For ${sector}, the government has allocated KSh ${totalBudget.toLocaleString()} in total. ` +
-      `So far, KSh ${totalSpent.toLocaleString()} has been spent, which is ${utilizationRate}% of the budget. ` +
-      `This means KSh ${remaining.toLocaleString()} is still available. ` +
-      (utilizationRate < 50 ? "The spending is low - more funds can be used for projects." :
-       utilizationRate < 80 ? "The spending is on track." :
-       "Most of the budget has been used.");
-    
-    return summary;
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading Dashboard...</p>
+      <div style={{ minHeight: '100vh', background: '#f5f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ display: 'inline-block', width: '50px', height: '50px', border: '4px solid #e5e7eb', borderTop: '4px solid #0066cc', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+          <p style={{ color: '#666', marginTop: '16px', fontSize: '16px', fontWeight: '500' }}>Loading Dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <h1 className="text-2xl font-bold text-gray-900">Governance Dashboard</h1>
-          <p className="text-sm text-gray-600 mt-1">Track public financial management and transparency</p>
+    <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: '40px' }}>
+      {/* Header */}
+      <div style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', marginBottom: '30px' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '30px 40px' }}>
+          <h1 style={{ color: '#1a1a1a', fontSize: '28px', fontWeight: '700', margin: '0 0 8px 0' }}>
+            Budget Dashboard
+          </h1>
+          <p style={{ color: '#666', fontSize: '15px', margin: '0' }}>
+            Track government spending and citizen feedback in real-time
+          </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Select Sector</label>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px' }}>
+        {/* Sector Selector */}
+        <div style={{ marginBottom: '30px' }}>
+          <label style={{ display: 'block', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>
+            Select Ministry Sector
+          </label>
           <select
             value={sector}
             onChange={(e) => setSector(e.target.value)}
-            className="w-full md:w-64 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            style={{ 
+              width: '100%', 
+              maxWidth: '350px', 
+              padding: '12px 16px', 
+              background: '#ffffff', 
+              border: '2px solid #d1d5db', 
+              borderRadius: '8px', 
+              color: '#1a1a1a', 
+              fontSize: '15px', 
+              fontWeight: '500', 
+              cursor: 'pointer',
+              outline: 'none'
+            }}
           >
-            <option value="education">Education</option>
-            <option value="health">Health</option>
+            <option value="education">Ministry of Education</option>
+            <option value="health">Ministry of Health</option>
           </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-600">
-            <div className="text-sm font-medium text-gray-600 mb-1">Total Budget</div>
-            <div className="text-2xl font-bold text-gray-900">KSh {totalBudget.toLocaleString()}</div>
+        {/* Stats Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Budget</div>
+            <div style={{ color: '#0066cc', fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>KSh {totalBudget.toLocaleString()}</div>
+            <div style={{ color: '#999', fontSize: '13px' }}>Allocated for FY 2024/2025</div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-amber-500">
-            <div className="text-sm font-medium text-gray-600 mb-1">Expenditure</div>
-            <div className="text-2xl font-bold text-gray-900">KSh {totalSpent.toLocaleString()}</div>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Expenditure</div>
+            <div style={{ color: '#dc2626', fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>KSh {totalSpent.toLocaleString()}</div>
+            <div style={{ color: '#999', fontSize: '13px' }}>Amount spent to date</div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-600">
-            <div className="text-sm font-medium text-gray-600 mb-1">Available</div>
-            <div className="text-2xl font-bold text-gray-900">KSh {remaining.toLocaleString()}</div>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Available</div>
+            <div style={{ color: '#059669', fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>KSh {remaining.toLocaleString()}</div>
+            <div style={{ color: '#999', fontSize: '13px' }}>Remaining balance</div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
-            <div className="text-sm font-medium text-gray-600 mb-1">Utilization</div>
-            <div className="text-2xl font-bold text-gray-900">{utilizationRate}%</div>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Utilization</div>
+            <div style={{ color: '#7c3aed', fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>{utilizationRate}%</div>
+            <div style={{ color: '#999', fontSize: '13px' }}>Budget execution rate</div>
           </div>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-          <h2 className="text-lg font-semibold text-blue-900 mb-3">AI-Powered Insights</h2>
-          {aiInsights ? (
-            <>
-              <p className="text-gray-700 mb-4">{aiInsights.summary}</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">Spending Status</h3>
-                  <p className="text-gray-700 text-sm">{aiInsights.spending_status}</p>
-                </div>
-                <div className="bg-white rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">Citizen Engagement</h3>
-                  <p className="text-gray-700 text-sm">{aiInsights.citizen_engagement}</p>
-                </div>
-              </div>
-              {aiInsights.recommendations && aiInsights.recommendations.length > 0 && (
-                <div className="mt-4 bg-white rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">Recommendations</h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    {aiInsights.recommendations.map((rec, idx) => (
-                      <li key={idx} className="text-gray-700 text-sm">{rec}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="text-gray-700">{getAISummary()}</p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Budget vs Expenditure</h3>
+        {/* Charts Section */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px', marginBottom: '30px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
+              Budget vs Expenditure
+            </h3>
             {budgetChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={budgetChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => `KSh ${value.toLocaleString()}`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="year" stroke="#666" style={{ fontSize: '13px' }} />
+                  <YAxis stroke="#666" style={{ fontSize: '13px' }} />
+                  <Tooltip 
+                    contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                    formatter={(value) => `KSh ${value.toLocaleString()}`} 
+                  />
                   <Legend />
-                  <Bar dataKey="budget" fill="#3b82f6" name="Budget" />
-                  <Bar dataKey="spent" fill="#10b981" name="Spent" />
+                  <Bar dataKey="budget" fill="#0066cc" name="Budget" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="spent" fill="#dc2626" name="Spent" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-center py-12 text-gray-500">No budget data available</div>
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#999' }}>No budget data available</div>
             )}
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Feedback Distribution</h3>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
+              Citizen Feedback Status
+            </h3>
             {feedbackByStatus.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -193,7 +181,7 @@ function Dashboard() {
                     cy="50%"
                     labelLine={false}
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
+                    outerRadius={90}
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -201,37 +189,40 @@ function Dashboard() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-center py-12 text-gray-500">No feedback data available</div>
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#999' }}>No feedback data available</div>
             )}
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Budget Details</h3>
+        {/* Budget Details Table */}
+        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div style={{ padding: '24px 28px', borderBottom: '1px solid #e5e7eb' }}>
+            <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0' }}>
+              Budget Breakdown
+            </h3>
           </div>
           {budgets.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">No budget data available</div>
+            <div style={{ padding: '60px 28px', textAlign: 'center', color: '#999' }}>No budget data available for this sector</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <th style={{ padding: '16px 28px', textAlign: 'left', color: '#666', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Year</th>
+                    <th style={{ padding: '16px 28px', textAlign: 'left', color: '#666', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Amount</th>
+                    <th style={{ padding: '16px 28px', textAlign: 'left', color: '#666', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Description</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {budgets.map((budget) => (
-                    <tr key={budget.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{budget.year}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">KSh {budget.amount.toLocaleString()}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{budget.description}</td>
+                <tbody>
+                  {budgets.map((budget, idx) => (
+                    <tr key={budget.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '18px 28px', color: '#1a1a1a', fontSize: '15px', fontWeight: '600' }}>{budget.year}</td>
+                      <td style={{ padding: '18px 28px', color: '#059669', fontSize: '15px', fontWeight: '700' }}>KSh {budget.amount.toLocaleString()}</td>
+                      <td style={{ padding: '18px 28px', color: '#666', fontSize: '14px' }}>{budget.description}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -240,6 +231,13 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
