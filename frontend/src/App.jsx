@@ -20,41 +20,33 @@ function App() {
         <Route 
           path="/dashboard" 
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
           } 
         />
         <Route 
           path="/feedback" 
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Feedback />
-              </Layout>
-            </ProtectedRoute>
+            <Layout>
+              <Feedback />
+            </Layout>
           } 
         />
         <Route 
           path="/expenditures" 
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Expenditures />
-              </Layout>
-            </ProtectedRoute>
+            <Layout>
+              <Expenditures />
+            </Layout>
           } 
         />
         <Route 
           path="/admin" 
           element={
-            <AdminRoute>
-              <Layout>
-                <Admin />
-              </Layout>
-            </AdminRoute>
+            <Layout>
+              <Admin />
+            </Layout>
           } 
         />
       </Routes>

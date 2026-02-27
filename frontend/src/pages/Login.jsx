@@ -6,6 +6,7 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,19 +17,42 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    
+    console.log('Form submitted', { email, password });
     setError('');
+    setLoading(true);
+    
     try {
       const formData = new URLSearchParams();
       formData.append('email', email);
       formData.append('password', password);
+      console.log('Sending request to /auth/login');
       const response = await apiClient.post('/auth/login', formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       });
-      localStorage.setItem('access_token', response.data.access_token);
-      navigate('/dashboard');
+      console.log('Login response received:', response);
+      console.log('Response data:', response.data);
+      console.log('Access token:', response.data.access_token);
+      
+      if (response.data && response.data.access_token) {
+        localStorage.setItem('access_token', response.data.access_token);
+        console.log('Token saved to localStorage');
+        console.log('Navigating to dashboard...');
+        // Force a full page reload to ensure token is recognized
+        window.location.href = '/dashboard';
+      } else {
+        console.error('No access token in response');
+        setError('Login failed: No token received');
+      }
     } catch (error) {
+      console.error('Login error:', error);
+      console.error('Error response:', error.response);
       const detail = error.response?.data?.detail;
       setError(typeof detail === 'string' ? detail : JSON.stringify(detail) || 'Login failed');
+    } finally {
+      setLoading(false);
+      console.log('Loading set to false');
     }
   };
 
@@ -144,7 +168,7 @@ function Login() {
               }}
             />
           </div>
-          <button type="submit" style={{
+          <button type="submit" disabled={loading} style={{
             width: '100%',
             padding: '14px',
             background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
@@ -154,8 +178,9 @@ function Login() {
             fontSize: '16px',
             cursor: 'pointer',
             fontWeight: '600',
-            boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
-          }}>Sign In</button>
+            boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)',
+            opacity: loading ? 0.6 : 1
+          }}>{loading ? 'Signing In...' : 'Sign In'}</button>
           {error && <p style={{ color: '#ef4444', marginTop: '15px', fontSize: '14px', textAlign: 'center' }}>{error}</p>}
         </form>
         <p style={{ textAlign: 'center', marginTop: '25px', color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px' }}>

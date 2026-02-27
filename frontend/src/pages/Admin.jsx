@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import apiClient from '../api/client';
+import apiClient from '../api/apiClient';
 
 const Admin = () => {
   const [feedback, setFeedback] = useState([]);

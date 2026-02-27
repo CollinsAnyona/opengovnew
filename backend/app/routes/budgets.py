@@ -30,8 +30,7 @@ def require_admin(current_user: dict = Depends(get_current_user)):
 @router.get("/", response_model=List[BudgetRead])
 def get_budgets(
     sector: Optional[str] = Query(None),
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     query = db.query(Budget)
     if sector:
@@ -44,8 +43,7 @@ def get_budgets(
 @router.get("/analytics", response_model=BudgetAnalyticsResponse)
 def get_budget_analytics(
     sector: str = Query(...),
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     result = AnalyticsService.calculate_budget_analytics(db, sector)
     if result is None:

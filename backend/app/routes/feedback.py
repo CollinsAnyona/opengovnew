@@ -69,8 +69,7 @@ def create_feedback(
 
 @router.get("/", response_model=List[FeedbackRead])
 def get_feedback(
-    db: Session = Depends(get_db),
-    admin_user: dict = Depends(require_admin)
+    db: Session = Depends(get_db)
 ):
     return db.query(Feedback).all()
 

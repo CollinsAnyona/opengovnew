@@ -14,18 +14,19 @@ function Dashboard() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [budgetRes, expRes, feedbackRes, insightsRes] = await Promise.all([
+        const [budgetRes, expRes, feedbackRes] = await Promise.all([
           apiClient.get(`/budgets?sector=${sector}`),
           apiClient.get('/expenditures'),
-          apiClient.get('/feedback'),
-          apiClient.get(`/ai/insights/${sector}`)
+          apiClient.get('/feedback')
         ]);
         setBudgets(budgetRes.data);
         setExpenditures(expRes.data);
         setFeedback(feedbackRes.data);
-        setAiInsights(insightsRes.data);
       } catch (error) {
         console.error('Failed to fetch data:', error);
+        setBudgets([]);
+        setExpenditures([]);
+        setFeedback([]);
       } finally {
         setLoading(false);
       }

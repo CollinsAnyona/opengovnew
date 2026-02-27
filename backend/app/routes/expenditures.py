@@ -24,7 +24,7 @@ def require_admin(current_user: dict = Depends(get_current_user)):
     return current_user
 
 @router.get("/", response_model=List[ExpenditureRead])
-def get_expenditures(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+def get_expenditures(db: Session = Depends(get_db)):
     return db.query(Expenditure).all()
 
 @router.post("/", response_model=ExpenditureRead)

@@ -58,6 +58,7 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Register form submitted');
     setSuccess('');
     setError('');
 
@@ -72,15 +73,18 @@ function Register() {
     }
 
     try {
-      await apiClient.post('/auth/register', {
+      console.log('Sending registration request...');
+      const response = await apiClient.post('/auth/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role
       });
+      console.log('Registration successful:', response.data);
       setSuccess('Registration successful! Redirecting...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
+      console.error('Registration error:', err);
       const detail = err.response?.data?.detail;
       setError(typeof detail === 'string' ? detail : JSON.stringify(detail) || 'Registration failed');
     }
