@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from ..db.base import Base
 
@@ -10,6 +10,7 @@ class Budget(Base):
     year = Column(Integer, nullable=False)
     amount = Column(Float, nullable=False)
     description = Column(String, nullable=False)
+    citizen_explanation = Column(Text, nullable=True)
     
     sector = relationship("Sector", back_populates="budgets")
     expenditures = relationship("Expenditure", back_populates="budget")

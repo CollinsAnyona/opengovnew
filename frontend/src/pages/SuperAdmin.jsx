@@ -5,6 +5,8 @@ function SuperAdmin() {
   const [activeTab, setActiveTab] = useState('overview');
   const [users, setUsers] = useState([]);
   const [sectors, setSectors] = useState([]);
+  const [budgets, setBudgets] = useState([]);
+  const [expenditures, setExpenditures] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [flaggedContent, setFlaggedContent] = useState({ posts: [], replies: [] });
@@ -13,6 +15,8 @@ function SuperAdmin() {
   // User form
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'citizen' });
   const [newSector, setNewSector] = useState({ name: '', description: '' });
+  const [newBudget, setNewBudget] = useState({ sector_id: '', year: new Date().getFullYear(), amount: '', description: '' });
+  const [newExpenditure, setNewExpenditure] = useState({ budget_id: '', amount: '', description: '' });
 
   useEffect(() => {
     fetchData();
@@ -44,6 +48,30 @@ function SuperAdmin() {
         } catch (error) {
           console.error('Sectors error:', error);
           setSectors([]);
+        }
+      } else if (activeTab === 'budgets') {
+        try {
+          const [sectorsRes, budgetsRes] = await Promise.all([
+            apiClient.get('/super-admin/sectors'),
+            apiClient.get('/super-admin/budgets')
+          ]);
+          setSectors(sectorsRes.data);
+          setBudgets(budgetsRes.data);
+        } catch (error) {
+          console.error('Budgets error:', error);
+          setBudgets([]);
+        }
+      } else if (activeTab === 'expenditures') {
+        try {
+          const [budgetsRes, expendituresRes] = await Promise.all([
+            apiClient.get('/super-admin/budgets'),
+            apiClient.get('/super-admin/expenditures')
+          ]);
+          setBudgets(budgetsRes.data);
+          setExpenditures(expendituresRes.data);
+        } catch (error) {
+          console.error('Expenditures error:', error);
+          setExpenditures([]);
         }
       } else if (activeTab === 'audit') {
         try {
@@ -122,6 +150,59 @@ function SuperAdmin() {
     }
   };
 
+  const createBudget = async (e) => {
+    e.preventDefault();
+    try {
+      await apiClient.post('/super-admin/budgets', {
+        ...newBudget,
+        sector_id: parseInt(newBudget.sector_id),
+        year: parseInt(newBudget.year),
+        amount: parseFloat(newBudget.amount)
+      });
+      setNewBudget({ sector_id: '', year: new Date().getFullYear(), amount: '', description: '' });
+      fetchData();
+      alert('Budget created successfully with AI explanation!');
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to create budget');
+    }
+  };
+
+  const deleteBudget = async (budgetId) => {
+    if (!confirm('Delete this budget?')) return;
+    try {
+      await apiClient.delete(`/super-admin/budgets/${budgetId}`);
+      fetchData();
+    } catch (error) {
+      alert('Failed to delete budget');
+    }
+  };
+
+  const createExpenditure = async (e) => {
+    e.preventDefault();
+    try {
+      await apiClient.post('/super-admin/expenditures', {
+        ...newExpenditure,
+        budget_id: parseInt(newExpenditure.budget_id),
+        amount: parseFloat(newExpenditure.amount)
+      });
+      setNewExpenditure({ budget_id: '', amount: '', description: '' });
+      fetchData();
+      alert('Expenditure recorded successfully with AI explanation!');
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Failed to create expenditure');
+    }
+  };
+
+  const deleteExpenditure = async (expenditureId) => {
+    if (!confirm('Delete this expenditure?')) return;
+    try {
+      await apiClient.delete(`/super-admin/expenditures/${expenditureId}`);
+      fetchData();
+    } catch (error) {
+      alert('Failed to delete expenditure');
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: '40px' }}>
       {/* Header */}
@@ -147,7 +228,7 @@ function SuperAdmin() {
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px' }}>
         {/* Tabs */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '30px', borderBottom: '2px solid #e5e7eb', paddingBottom: '0' }}>
-          {['overview', 'users', 'sectors', 'moderation', 'audit'].map(tab => (
+          {['overview', 'users', 'sectors', 'budgets', 'expenditures', 'moderation', 'audit'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -333,6 +414,201 @@ function SuperAdmin() {
                       </button>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Budgets Tab */}
+            {activeTab === 'budgets' && (
+              <div>
+                <div style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)', border: '2px solid #93c5fd', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    </svg>
+                    <h3 style={{ color: '#1e40af', fontSize: '18px', fontWeight: '700', margin: '0' }}>AI-Powered Budget Creation</h3>
+                  </div>
+                  <p style={{ color: '#1e40af', fontSize: '14px', margin: '0' }}>When you create a budget, AI automatically generates a citizen-friendly explanation that appears on the dashboard.</p>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', marginBottom: '24px' }}>
+                  <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
+                    Create New Budget Allocation
+                  </h3>
+                  <form onSubmit={createBudget} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 3fr 1fr', gap: '16px' }}>
+                    <select
+                      value={newBudget.sector_id}
+                      onChange={(e) => setNewBudget({ ...newBudget, sector_id: e.target.value })}
+                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      required
+                    >
+                      <option value="">Select Sector</option>
+                      {sectors.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      placeholder="Year"
+                      value={newBudget.year}
+                      onChange={(e) => setNewBudget({ ...newBudget, year: e.target.value })}
+                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      required
+                    />
+                    <input
+                      type="number"
+                      placeholder="Amount (KSh)"
+                      value={newBudget.amount}
+                      onChange={(e) => setNewBudget({ ...newBudget, amount: e.target.value })}
+                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Description (e.g., Infrastructure development)"
+                      value={newBudget.description}
+                      onChange={(e) => setNewBudget({ ...newBudget, description: e.target.value })}
+                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      required
+                    />
+                    <button type="submit" style={{ padding: '10px 20px', background: '#0066cc', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                      Create Budget
+                    </button>
+                  </form>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
+                  <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb' }}>
+                    <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0' }}>All Budget Allocations</h3>
+                  </div>
+                  {budgets.length === 0 ? (
+                    <div style={{ padding: '60px', textAlign: 'center', color: '#999' }}>No budgets created yet</div>
+                  ) : (
+                    <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                      {budgets.map(budget => (
+                        <div key={budget.id} style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <div>
+                              <span style={{ padding: '4px 12px', background: '#dbeafe', color: '#1e40af', borderRadius: '6px', fontSize: '12px', fontWeight: '600', marginRight: '8px' }}>{budget.sector_name}</span>
+                              <span style={{ color: '#666', fontSize: '14px' }}>Year: {budget.year}</span>
+                            </div>
+                            <div>
+                              <span style={{ color: '#0066cc', fontSize: '18px', fontWeight: '700' }}>KSh {budget.amount.toLocaleString()}</span>
+                              <button onClick={() => deleteBudget(budget.id)} style={{ marginLeft: '16px', padding: '6px 12px', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                          <p style={{ color: '#1a1a1a', fontSize: '14px', margin: '0 0 12px 0', fontWeight: '600' }}>{budget.description}</p>
+                          {budget.citizen_explanation && (
+                            <div style={{ background: '#f0f9ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px' }}>
+                              <div style={{ color: '#1e40af', fontSize: '13px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                </svg>
+                                AI Citizen Explanation:
+                              </div>
+                              <p style={{ color: '#1e40af', fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{budget.citizen_explanation}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Expenditures Tab */}
+            {activeTab === 'expenditures' && (
+              <div>
+                <div style={{ background: 'linear-gradient(135deg, #fee2e2 0%, #fef3c7 100%)', border: '2px solid #fca5a5', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#991b1b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <h3 style={{ color: '#991b1b', fontSize: '18px', fontWeight: '700', margin: '0' }}>AI-Powered Expenditure Tracking</h3>
+                  </div>
+                  <p style={{ color: '#991b1b', fontSize: '14px', margin: '0' }}>Record spending and AI generates transparent explanations for citizens showing how their tax money is being used.</p>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', marginBottom: '24px' }}>
+                  <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
+                    Record New Expenditure
+                  </h3>
+                  <form onSubmit={createExpenditure} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 3fr 1fr', gap: '16px' }}>
+                    <select
+                      value={newExpenditure.budget_id}
+                      onChange={(e) => setNewExpenditure({ ...newExpenditure, budget_id: e.target.value })}
+                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      required
+                    >
+                      <option value="">Select Budget</option>
+                      {budgets.map(b => (
+                        <option key={b.id} value={b.id}>{b.sector_name} - {b.year} (KSh {b.amount.toLocaleString()})</option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      placeholder="Amount Spent (KSh)"
+                      value={newExpenditure.amount}
+                      onChange={(e) => setNewExpenditure({ ...newExpenditure, amount: e.target.value })}
+                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="What was this spent on?"
+                      value={newExpenditure.description}
+                      onChange={(e) => setNewExpenditure({ ...newExpenditure, description: e.target.value })}
+                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      required
+                    />
+                    <button type="submit" style={{ padding: '10px 20px', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                      Record Spending
+                    </button>
+                  </form>
+                </div>
+
+                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
+                  <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb' }}>
+                    <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0' }}>All Expenditures</h3>
+                  </div>
+                  {expenditures.length === 0 ? (
+                    <div style={{ padding: '60px', textAlign: 'center', color: '#999' }}>No expenditures recorded yet</div>
+                  ) : (
+                    <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                      {expenditures.map(exp => (
+                        <div key={exp.id} style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <div>
+                              <span style={{ padding: '4px 12px', background: '#fee2e2', color: '#991b1b', borderRadius: '6px', fontSize: '12px', fontWeight: '600', marginRight: '8px' }}>{exp.sector_name}</span>
+                              <span style={{ color: '#666', fontSize: '13px' }}>{new Date(exp.date).toLocaleDateString()}</span>
+                            </div>
+                            <div>
+                              <span style={{ color: '#dc2626', fontSize: '18px', fontWeight: '700' }}>KSh {exp.amount.toLocaleString()}</span>
+                              <button onClick={() => deleteExpenditure(exp.id)} style={{ marginLeft: '16px', padding: '6px 12px', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                          <p style={{ color: '#1a1a1a', fontSize: '14px', margin: '0 0 12px 0', fontWeight: '600' }}>{exp.description}</p>
+                          {exp.citizen_explanation && (
+                            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px' }}>
+                              <div style={{ color: '#991b1b', fontSize: '13px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#991b1b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                </svg>
+                                AI Citizen Explanation:
+                              </div>
+                              <p style={{ color: '#991b1b', fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{exp.citizen_explanation}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

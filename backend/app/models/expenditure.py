@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ..db.base import Base
@@ -11,5 +11,6 @@ class Expenditure(Base):
     amount = Column(Float, nullable=False)
     description = Column(String, nullable=False)
     date = Column(DateTime(timezone=True), server_default=func.now())
+    citizen_explanation = Column(Text, nullable=True)
     
     budget = relationship("Budget", back_populates="expenditures")

@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from app.models.user import User, UserRole
 from app.models.budget import Budget
+from app.models.expenditure import Expenditure
 from app.models.sector import Sector
 from app.models.feedback import Feedback
 from app.models.forum_post import ForumPost
@@ -13,6 +14,7 @@ from app.models.forum_reply import ForumReply
 from app.models.audit_log import AuditLog
 from app.core.security import hash_password, verify_token
 from app.db.session import SessionLocal
+from app.services.budget_ai_service import generate_citizen_explanation, generate_expenditure_explanation
 
 router = APIRouter(prefix="/super-admin", tags=["super-admin"])
 
@@ -258,9 +260,49 @@ class BudgetCreate(BaseModel):
     amount: float
     description: str
 
+class ExpenditureCreate(BaseModel):
+    budget_id: int
+    amount: float
+    description: str
+
+@router.get("/budgets")
+def get_all_budgets(db: Session = Depends(get_db)):
+    budgets = db.query(Budget).all()
+    result = []
+    for b in budgets:
+        sector = db.query(Sector).filter(Sector.id == b.sector_id).first()
+        result.append({
+            "id": b.id,
+            "sector_name": sector.name if sector else "Unknown",
+            "sector_id": b.sector_id,
+            "year": b.year,
+            "amount": b.amount,
+            "description": b.description,
+            "citizen_explanation": b.citizen_explanation
+        })
+    return result
+
 @router.post("/budgets")
 def create_budget(budget: BudgetCreate, db: Session = Depends(get_db)):
-    db_budget = Budget(**budget.dict())
+    sector = db.query(Sector).filter(Sector.id == budget.sector_id).first()
+    if not sector:
+        raise HTTPException(status_code=404, detail="Sector not found")
+    
+    # Generate AI explanation
+    citizen_explanation = generate_citizen_explanation(
+        sector_name=sector.name,
+        year=budget.year,
+        amount=budget.amount,
+        description=budget.description
+    )
+    
+    db_budget = Budget(
+        sector_id=budget.sector_id,
+        year=budget.year,
+        amount=budget.amount,
+        description=budget.description,
+        citizen_explanation=citizen_explanation
+    )
     db.add(db_budget)
     db.commit()
     db.refresh(db_budget)
@@ -269,7 +311,65 @@ def create_budget(budget: BudgetCreate, db: Session = Depends(get_db)):
     
     return {"message": "Budget created successfully", "budget_id": db_budget.id}
 
-@router.delete("/budgets/{budget_id}")
+@router.post("/expenditures")
+def create_expenditure(expenditure: ExpenditureCreate, db: Session = Depends(get_db)):
+    budget = db.query(Budget).filter(Budget.id == expenditure.budget_id).first()
+    if not budget:
+        raise HTTPException(status_code=404, detail="Budget not found")
+    
+    sector = db.query(Sector).filter(Sector.id == budget.sector_id).first()
+    
+    # Generate AI explanation
+    citizen_explanation = generate_expenditure_explanation(
+        budget_description=budget.description,
+        amount=expenditure.amount,
+        expenditure_description=expenditure.description,
+        sector_name=sector.name if sector else "Unknown"
+    )
+    
+    db_expenditure = Expenditure(
+        budget_id=expenditure.budget_id,
+        amount=expenditure.amount,
+        description=expenditure.description,
+        citizen_explanation=citizen_explanation
+    )
+    db.add(db_expenditure)
+    db.commit()
+    db.refresh(db_expenditure)
+    
+    log_action(db, 1, "create_expenditure", "expenditure", db_expenditure.id, f"Created expenditure for budget {expenditure.budget_id}")
+    
+    return {"message": "Expenditure created successfully", "expenditure_id": db_expenditure.id}
+
+@router.get("/expenditures")
+def get_all_expenditures(db: Session = Depends(get_db)):
+    expenditures = db.query(Expenditure).all()
+    result = []
+    for e in expenditures:
+        budget = db.query(Budget).filter(Budget.id == e.budget_id).first()
+        sector = db.query(Sector).filter(Sector.id == budget.sector_id).first() if budget else None
+        result.append({
+            "id": e.id,
+            "budget_id": e.budget_id,
+            "sector_name": sector.name if sector else "Unknown",
+            "amount": e.amount,
+            "description": e.description,
+            "date": e.date,
+            "citizen_explanation": e.citizen_explanation
+        })
+    return result
+
+@router.delete("/expenditures/{expenditure_id}")
+def delete_expenditure(expenditure_id: int, db: Session = Depends(get_db)):
+    expenditure = db.query(Expenditure).filter(Expenditure.id == expenditure_id).first()
+    if not expenditure:
+        raise HTTPException(status_code=404, detail="Expenditure not found")
+    
+    log_action(db, 1, "delete_expenditure", "expenditure", expenditure_id, f"Deleted expenditure")
+    db.delete(expenditure)
+    db.commit()
+    
+    return {"message": "Expenditure deleted successfully"}
 def delete_budget(budget_id: int, db: Session = Depends(get_db)):
     budget = db.query(Budget).filter(Budget.id == budget_id).first()
     if not budget:
