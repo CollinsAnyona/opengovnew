@@ -38,6 +38,17 @@ function Expenditures() {
     return <div className="text-center py-8 text-gray-600">Loading...</div>;
   }
 
+  // Group budgets by sector and year for summary table
+  const budgetSummary = budgets.reduce((acc, budget) => {
+    const key = `${budget.sector}_${budget.year}`;
+    if (!acc[key]) {
+      acc[key] = { ...budget, totalAmount: 0 };
+    }
+    acc[key].totalAmount += budget.amount;
+    return acc;
+  }, {});
+  const summaryBudgets = Object.values(budgetSummary);
+
   return (
     <div>
       <div className="mb-8">
@@ -74,10 +85,10 @@ function Expenditures() {
                   <tr key={budget.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{budget.sector}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{budget.year}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${budget.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${spent.toLocaleString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">KSh {budget.amount.toLocaleString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">KSh {spent.toLocaleString()}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: remaining < 0 ? '#dc3545' : '#28a745' }}>
-                      ${remaining.toLocaleString()}
+                      KSh {remaining.toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -127,10 +138,10 @@ function Expenditures() {
                         {new Date(exp.date).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {budget ? `${budget.sector} ${budget.year}` : 'N/A'}
+                        {exp.sector ? `${exp.sector} ${exp.year}` : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ${exp.amount.toLocaleString()}
+                        KSh {exp.amount.toLocaleString()}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">{exp.description}</td>
                     </tr>

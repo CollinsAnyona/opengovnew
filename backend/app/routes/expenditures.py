@@ -23,9 +23,27 @@ def require_admin(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
-@router.get("/", response_model=List[ExpenditureRead])
+@router.get("/")
 def get_expenditures(db: Session = Depends(get_db)):
-    return db.query(Expenditure).all()
+    from app.models.budget import Budget
+    from app.models.sector import Sector
+    
+    expenditures = db.query(Expenditure).all()
+    result = []
+    for exp in expenditures:
+        budget = db.query(Budget).filter(Budget.id == exp.budget_id).first()
+        sector = db.query(Sector).filter(Sector.id == budget.sector_id).first() if budget else None
+        result.append({
+            "id": exp.id,
+            "budget_id": exp.budget_id,
+            "amount": exp.amount,
+            "description": exp.description,
+            "date": exp.date,
+            "citizen_explanation": exp.citizen_explanation,
+            "sector": sector.name if sector else None,
+            "year": budget.year if budget else None
+        })
+    return result
 
 @router.post("/", response_model=ExpenditureRead)
 def create_expenditure(

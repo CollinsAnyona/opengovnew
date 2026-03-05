@@ -28,7 +28,7 @@ def require_admin(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
-@router.get("/", response_model=List[BudgetRead])
+@router.get("/")
 def get_budgets(
     sector: Optional[str] = Query(None),
     county: Optional[str] = Query(None),
@@ -47,7 +47,22 @@ def get_budgets(
         query = query.filter(Budget.county.ilike(county))
     if year:
         query = query.filter(Budget.year == year)
-    return query.all()
+    
+    budgets = query.all()
+    result = []
+    for b in budgets:
+        sector_obj = db.query(Sector).filter(Sector.id == b.sector_id).first()
+        result.append({
+            "id": b.id,
+            "sector_id": b.sector_id,
+            "sector": sector_obj.name if sector_obj else None,
+            "year": b.year,
+            "amount": b.amount,
+            "description": b.description,
+            "county": b.county,
+            "citizen_explanation": b.citizen_explanation
+        })
+    return result
 
 @router.get("/analytics", response_model=BudgetAnalyticsResponse)
 def get_budget_analytics(

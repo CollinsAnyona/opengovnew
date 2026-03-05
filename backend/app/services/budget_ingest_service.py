@@ -128,10 +128,11 @@ class BudgetIngestService:
                     db.add(sector)
                     db.flush()
                 
-                # Check if record exists
+                # Check if record exists (unique by sector, year, AND county)
                 existing = db.query(Budget).filter(
                     Budget.sector_id == sector.id,
-                    Budget.year == year
+                    Budget.year == year,
+                    Budget.county == county if county else Budget.county.is_(None)
                 ).first()
                 
                 # Generate AI explanation

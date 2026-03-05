@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import apiClient from '../api/apiClient';
 
 function Dashboard() {
@@ -282,7 +282,13 @@ function Dashboard() {
           <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Budget Allocation Trend Over Time</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trendData}>
+              <AreaChart data={trendData}>
+                <defs>
+                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#1e40af" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#1e40af" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis 
                   dataKey="year" 
@@ -304,16 +310,16 @@ function Dashboard() {
                   formatter={(value) => [`KSh ${value.toLocaleString()}`, 'Allocation']}
                 />
                 <Legend wrapperStyle={{ paddingTop: '20px', fontWeight: 600 }} />
-                <Line 
+                <Area 
                   type="monotone" 
                   dataKey="amount" 
                   stroke="#1e40af" 
                   strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorAmount)"
                   name="Budget Allocation"
-                  dot={{ fill: '#1e40af', r: 5 }}
-                  activeDot={{ r: 7 }}
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         )}
