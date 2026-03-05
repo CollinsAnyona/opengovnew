@@ -82,67 +82,18 @@ function Forum() {
         {/* Actions Bar */}
         <div style={{ marginBottom: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setCategory('all')}
-                style={{
-                  padding: '10px 20px',
-                  background: category === 'all' ? '#0066cc' : '#ffffff',
-                  color: category === 'all' ? '#ffffff' : '#666',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <label style={{ color: '#666', fontSize: '14px', fontWeight: '600' }}>Filter by Sector:</label>
+              <select
+                value={selectedSector}
+                onChange={(e) => setSelectedSector(e.target.value)}
+                style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', background: '#ffffff', cursor: 'pointer' }}
               >
-                All Topics
-              </button>
-              <button
-                onClick={() => setCategory('education')}
-                style={{
-                  padding: '10px 20px',
-                  background: category === 'education' ? '#0066cc' : '#ffffff',
-                  color: category === 'education' ? '#ffffff' : '#666',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                Education
-              </button>
-              <button
-                onClick={() => setCategory('health')}
-                style={{
-                  padding: '10px 20px',
-                  background: category === 'health' ? '#0066cc' : '#ffffff',
-                  color: category === 'health' ? '#ffffff' : '#666',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                Health
-              </button>
-              <button
-                onClick={() => setCategory('general')}
-                style={{
-                  padding: '10px 20px',
-                  background: category === 'general' ? '#0066cc' : '#ffffff',
-                  color: category === 'general' ? '#ffffff' : '#666',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                General
-              </button>
+                <option value="all">All Sectors</option>
+                {sectors.map((sector) => (
+                  <option key={sector.id} value={sector.id}>{sector.name}</option>
+                ))}
+              </select>
             </div>
 
             <button
@@ -161,21 +112,6 @@ function Forum() {
             >
               + New Discussion
             </button>
-          </div>
-
-          {/* Sector Filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <label style={{ color: '#666', fontSize: '14px', fontWeight: '600' }}>Filter by Sector:</label>
-            <select
-              value={selectedSector}
-              onChange={(e) => setSelectedSector(e.target.value)}
-              style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', background: '#ffffff', cursor: 'pointer' }}
-            >
-              <option value="all">All Sectors</option>
-              {sectors.map((sector) => (
-                <option key={sector.id} value={sector.id}>{sector.name}</option>
-              ))}
-            </select>
           </div>
         </div>
 

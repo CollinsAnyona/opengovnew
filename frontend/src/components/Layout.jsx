@@ -7,12 +7,14 @@ const Layout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [userName, setUserName] = useState('');
+  const [userRole, setUserRole] = useState('');
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await apiClient.get('/auth/me');
         setUserName(response.data.name.split(' ')[0]);
+        setUserRole(response.data.role);
       } catch (error) {
         console.error('Failed to fetch user:', error);
         setUserName('Guest');
@@ -23,6 +25,7 @@ const Layout = ({ children }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('ai_chat_history');
     navigate('/');
   };
 
@@ -101,6 +104,24 @@ const Layout = ({ children }) => {
                   Expenditures
                 </Link>
                 <Link 
+                  to="/ai-assistant" 
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s',
+                    background: isActive('/ai-assistant') ? '#059669' : 'transparent',
+                    color: isActive('/ai-assistant') ? '#ffffff' : '#333333',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  AI Assistant
+                </Link>
+                <Link 
                   to="/forum" 
                   style={{
                     padding: '10px 20px',
@@ -130,37 +151,41 @@ const Layout = ({ children }) => {
                 >
                   Feedback
                 </Link>
-                <Link 
-                  to="/admin" 
-                  style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s',
-                    background: isActive('/admin') ? '#0066cc' : 'transparent',
-                    color: isActive('/admin') ? '#ffffff' : '#333333'
-                  }}
-                >
-                  Admin
-                </Link>
-                <Link 
-                  to="/super-admin" 
-                  style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    textDecoration: 'none',
-                    transition: 'all 0.2s',
-                    background: isActive('/super-admin') ? '#7c3aed' : 'transparent',
-                    color: isActive('/super-admin') ? '#ffffff' : '#333333',
-                    border: isActive('/super-admin') ? 'none' : '1px solid #7c3aed'
-                  }}
-                >
-                  Super Admin
-                </Link>
+                {(userRole === 'admin' || userRole === 'super_admin') && (
+                  <Link 
+                    to="/admin" 
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '8px',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      textDecoration: 'none',
+                      transition: 'all 0.2s',
+                      background: isActive('/admin') ? '#0066cc' : 'transparent',
+                      color: isActive('/admin') ? '#ffffff' : '#333333'
+                    }}
+                  >
+                    Admin
+                  </Link>
+                )}
+                {userRole === 'super_admin' && (
+                  <Link 
+                    to="/super-admin" 
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '8px',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      textDecoration: 'none',
+                      transition: 'all 0.2s',
+                      background: isActive('/super-admin') ? '#7c3aed' : 'transparent',
+                      color: isActive('/super-admin') ? '#ffffff' : '#333333',
+                      border: isActive('/super-admin') ? 'none' : '1px solid #7c3aed'
+                    }}
+                  >
+                    Super Admin
+                  </Link>
+                )}
               </div>
             </div>
 

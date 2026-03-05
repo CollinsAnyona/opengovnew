@@ -9,6 +9,7 @@ import SuperAdmin from './pages/SuperAdmin';
 import Expenditures from './pages/Expenditures';
 import Forum from './pages/Forum';
 import ForumPost from './pages/ForumPost';
+import AIAssistant from './pages/AIAssistant';
 import ProtectedRoute from './auth/ProtectedRoute';
 import AdminRoute from './auth/AdminRoute';
 import Layout from './components/Layout';
@@ -66,6 +67,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <ForumPost />
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/ai-assistant" 
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AIAssistant />
               </Layout>
             </ProtectedRoute>
           } 

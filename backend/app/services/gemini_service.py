@@ -1,22 +1,30 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import json
 from typing import Dict, Optional
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configure Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=GEMINI_API_KEY)
+else:
+    client = None
+    print("WARNING: GEMINI_API_KEY not found in environment variables")
 
 class GeminiAIService:
     """Google Gemini AI service for OpenGov platform"""
     
     @staticmethod
     def _get_model():
-        """Get Gemini model instance"""
-        if not GEMINI_API_KEY:
+        """Get Gemini client instance"""
+        if not client:
             return None
-        return genai.GenerativeModel('gemini-pro')
+        return client
     
     @staticmethod
     def moderate_content(content: str, content_type: str = "general") -> Dict:
@@ -51,7 +59,9 @@ Respond in JSON format:
     "severity": "low|medium|high"
 }}"""
             
-            response = model.generate_content(prompt)
+            response = model.models.generate_content(
+                contents=[prompt]
+            )
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))
             return result
         except Exception as e:
@@ -104,7 +114,9 @@ Provide analysis in JSON format:
     "personalized_response": "A warm, personalized 2-3 sentence response acknowledging their specific concern and referencing the real budget/spending data if relevant. Be empathetic and actionable."
 }}"""
             
-            response = model.generate_content(prompt)
+            response = model.models.generate_content(
+                contents=[prompt]
+            )
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))
             return result
         except Exception as e:
@@ -154,7 +166,9 @@ Provide a warm, conversational analysis that:
 
 Tone: Friendly, transparent, empowering. Use Kenyan Shillings (KSh) format. Keep under 200 words."""
             
-            response = model.generate_content(prompt)
+            response = model.models.generate_content(
+                contents=[prompt]
+            )
             return response.text
         except Exception as e:
             print(f"Gemini budget insights error: {e}")
@@ -183,7 +197,9 @@ Provide:
 
 Keep it under 100 words, friendly tone, avoid jargon."""
             
-            response = model.generate_content(prompt)
+            response = model.models.generate_content(
+                contents=[prompt]
+            )
             return response.text
         except Exception as e:
             print(f"Gemini explanation error: {e}")
@@ -219,7 +235,9 @@ Respond in JSON:
     "recommendations": ["list of recommendations"]
 }}"""
             
-            response = model.generate_content(prompt)
+            response = model.models.generate_content(
+                contents=[prompt]
+            )
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))
             return result
         except Exception as e:
