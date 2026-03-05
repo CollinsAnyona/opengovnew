@@ -20,6 +20,7 @@ class ForumPostCreate(BaseModel):
     title: str
     content: str
     category: str
+    sector_id: Optional[int] = None
 
 class ForumPostRead(BaseModel):
     id: int
@@ -27,6 +28,8 @@ class ForumPostRead(BaseModel):
     title: str
     content: str
     category: str
+    sector_id: Optional[int] = None
+    sector_name: Optional[str] = None
     created_at: datetime
     user_name: Optional[str] = None
     reply_count: Optional[int] = 0

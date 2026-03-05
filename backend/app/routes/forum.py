@@ -9,6 +9,8 @@ from app.models.user import User
 from app.models.user_notification import UserNotification
 from app.services.forum_moderation_service import ForumModerationService
 from app.db.session import SessionLocal
+from app.services.email_service import send_forum_reply_email, send_forum_moderation_email
+from app.services.gemini_service import GeminiAIService
 
 router = APIRouter(prefix="/forum", tags=["forum"])
 
@@ -24,22 +26,32 @@ def get_db():
         db.close()
 
 @router.get("/posts", response_model=List[ForumPostRead])
-def get_posts(category: Optional[str] = None, db: Session = Depends(get_db)):
+def get_posts(category: Optional[str] = None, sector_id: Optional[int] = None, db: Session = Depends(get_db)):
     query = db.query(ForumPost).filter(ForumPost.moderation_status != 'removed')
     if category:
         query = query.filter(ForumPost.category == category)
+    if sector_id:
+        query = query.filter(ForumPost.sector_id == sector_id)
     
     posts = query.order_by(ForumPost.created_at.desc()).all()
     
     result = []
     for post in posts:
         user = db.query(User).filter(User.id == post.user_id).first()
+        sector_name = None
+        if post.sector_id:
+            from app.models.sector import Sector
+            sector = db.query(Sector).filter(Sector.id == post.sector_id).first()
+            sector_name = sector.name if sector else None
+        
         post_dict = {
             "id": post.id,
             "user_id": post.user_id,
             "title": post.title,
             "content": post.content,
             "category": post.category,
+            "sector_id": post.sector_id,
+            "sector_name": sector_name,
             "created_at": post.created_at,
             "user_name": user.name if user else "Unknown",
             "reply_count": len([r for r in post.replies if r.moderation_status != 'removed'])
@@ -83,18 +95,19 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
 
 @router.post("/posts", response_model=ForumPostRead)
 def create_post(post: ForumPostCreate, db: Session = Depends(get_db)):
-    # AI Moderation
-    title_moderation = ForumModerationService.moderate_content(post.title)
-    content_moderation = ForumModerationService.moderate_content(post.content)
+    # AI Moderation using Gemini
+    title_moderation = GeminiAIService.moderate_content(post.title, "forum post title")
+    content_moderation = GeminiAIService.moderate_content(post.content, "forum post")
     
     is_flagged = title_moderation['is_flagged'] or content_moderation['is_flagged']
-    flagged_reason = title_moderation['reason'] or content_moderation['reason']
+    flagged_reason = title_moderation.get('reason') or content_moderation.get('reason')
     
     db_post = ForumPost(
         user_id=1,
         title=post.title,
         content=post.content,
         category=post.category,
+        sector_id=post.sector_id,
         is_flagged=is_flagged,
         flagged_reason=flagged_reason,
         moderation_status='pending' if is_flagged else 'approved'
@@ -104,6 +117,11 @@ def create_post(post: ForumPostCreate, db: Session = Depends(get_db)):
     db.refresh(db_post)
     
     user = db.query(User).filter(User.id == db_post.user_id).first()
+    sector_name = None
+    if db_post.sector_id:
+        from app.models.sector import Sector
+        sector = db.query(Sector).filter(Sector.id == db_post.sector_id).first()
+        sector_name = sector.name if sector else None
     
     return {
         "id": db_post.id,
@@ -111,6 +129,8 @@ def create_post(post: ForumPostCreate, db: Session = Depends(get_db)):
         "title": db_post.title,
         "content": db_post.content,
         "category": db_post.category,
+        "sector_id": db_post.sector_id,
+        "sector_name": sector_name,
         "created_at": db_post.created_at,
         "user_name": user.name if user else "Unknown",
         "reply_count": 0
@@ -122,20 +142,36 @@ def create_reply(post_id: int, reply: ForumReplyCreate, db: Session = Depends(ge
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     
-    # AI Moderation
-    moderation = ForumModerationService.moderate_content(reply.content)
+    # AI Moderation using Gemini
+    moderation = GeminiAIService.moderate_content(reply.content, "forum reply")
     
     db_reply = ForumReply(
         post_id=post_id,
         user_id=1,
         content=reply.content,
         is_flagged=moderation['is_flagged'],
-        flagged_reason=moderation['reason'],
+        flagged_reason=moderation.get('reason'),
         moderation_status='pending' if moderation['is_flagged'] else 'approved'
     )
     db.add(db_reply)
     db.commit()
     db.refresh(db_reply)
+    
+    # Send email notification to post author
+    post_author = db.query(User).filter(User.id == post.user_id).first()
+    replier = db.query(User).filter(User.id == db_reply.user_id).first()
+    
+    if post_author and post_author.email and post_author.id != db_reply.user_id:
+        try:
+            send_forum_reply_email(
+                user_email=post_author.email,
+                user_name=post_author.name,
+                post_title=post.title,
+                replier_name=replier.name if replier else "Someone",
+                reply_preview=reply.content
+            )
+        except Exception as e:
+            print(f"Failed to send forum reply email: {e}")
     
     user = db.query(User).filter(User.id == db_reply.user_id).first()
     
@@ -216,7 +252,6 @@ def moderate_post(post_id: int, action: ModerationAction, db: Session = Depends(
     elif action.action == "warn":
         post.moderation_status = "warned"
         post.admin_action = action.message or "Warning issued"
-        # Send notification to user
         notification = UserNotification(
             user_id=post.user_id,
             title="Content Warning",
@@ -246,6 +281,21 @@ def moderate_post(post_id: int, action: ModerationAction, db: Session = Depends(
         db.add(notification)
     
     db.commit()
+    
+    # Send email notification
+    if user and user.email:
+        try:
+            send_forum_moderation_email(
+                user_email=user.email,
+                user_name=user.name,
+                action=action.action,
+                content_type="forum post",
+                content_title=post.title,
+                reason=action.message
+            )
+        except Exception as e:
+            print(f"Failed to send moderation email: {e}")
+    
     return {"message": f"Post {action.action}d successfully"}
 
 @router.post("/admin/moderate-reply/{reply_id}")
@@ -256,6 +306,7 @@ def moderate_reply(reply_id: int, action: ModerationAction, db: Session = Depend
         raise HTTPException(status_code=404, detail="Reply not found")
     
     post = db.query(ForumPost).filter(ForumPost.id == reply.post_id).first()
+    user = db.query(User).filter(User.id == reply.user_id).first()
     
     if action.action == "approve":
         reply.moderation_status = "approved"
@@ -292,4 +343,19 @@ def moderate_reply(reply_id: int, action: ModerationAction, db: Session = Depend
         db.add(notification)
     
     db.commit()
+    
+    # Send email notification
+    if user and user.email:
+        try:
+            send_forum_moderation_email(
+                user_email=user.email,
+                user_name=user.name,
+                action=action.action,
+                content_type="forum reply",
+                content_title=post.title if post else "a discussion",
+                reason=action.message
+            )
+        except Exception as e:
+            print(f"Failed to send moderation email: {e}")
+    
     return {"message": f"Reply {action.action}d successfully"}

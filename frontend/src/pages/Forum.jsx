@@ -4,20 +4,37 @@ import apiClient from '../api/apiClient';
 
 function Forum() {
   const [posts, setPosts] = useState([]);
+  const [sectors, setSectors] = useState([]);
   const [category, setCategory] = useState('all');
+  const [selectedSector, setSelectedSector] = useState('all');
   const [showCreatePost, setShowCreatePost] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', content: '', category: 'general' });
+  const [newPost, setNewPost] = useState({ title: '', content: '', category: 'general', sector_id: null });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    fetchSectors();
+  }, []);
+
+  useEffect(() => {
     fetchPosts();
-  }, [category]);
+  }, [category, selectedSector]);
+
+  const fetchSectors = async () => {
+    try {
+      const response = await apiClient.get('/sectors/');
+      setSectors(response.data);
+    } catch (error) {
+      console.error('Failed to fetch sectors:', error);
+    }
+  };
 
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const url = category === 'all' ? '/forum/posts' : `/forum/posts?category=${category}`;
+      let url = '/forum/posts?';
+      if (category !== 'all') url += `category=${category}&`;
+      if (selectedSector !== 'all') url += `sector_id=${selectedSector}`;
       const response = await apiClient.get(url);
       setPosts(response.data);
     } catch (error) {
@@ -63,86 +80,103 @@ function Forum() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
         {/* Actions Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setCategory('all')}
+                style={{
+                  padding: '10px 20px',
+                  background: category === 'all' ? '#0066cc' : '#ffffff',
+                  color: category === 'all' ? '#ffffff' : '#666',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                All Topics
+              </button>
+              <button
+                onClick={() => setCategory('education')}
+                style={{
+                  padding: '10px 20px',
+                  background: category === 'education' ? '#0066cc' : '#ffffff',
+                  color: category === 'education' ? '#ffffff' : '#666',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Education
+              </button>
+              <button
+                onClick={() => setCategory('health')}
+                style={{
+                  padding: '10px 20px',
+                  background: category === 'health' ? '#0066cc' : '#ffffff',
+                  color: category === 'health' ? '#ffffff' : '#666',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Health
+              </button>
+              <button
+                onClick={() => setCategory('general')}
+                style={{
+                  padding: '10px 20px',
+                  background: category === 'general' ? '#0066cc' : '#ffffff',
+                  color: category === 'general' ? '#ffffff' : '#666',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                General
+              </button>
+            </div>
+
             <button
-              onClick={() => setCategory('all')}
+              onClick={() => setShowCreatePost(!showCreatePost)}
               style={{
-                padding: '10px 20px',
-                background: category === 'all' ? '#0066cc' : '#ffffff',
-                color: category === 'all' ? '#ffffff' : '#666',
-                border: '1px solid #e5e7eb',
+                padding: '12px 24px',
+                background: '#059669',
+                color: '#ffffff',
+                border: 'none',
                 borderRadius: '8px',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: '600',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)'
               }}
             >
-              All Topics
-            </button>
-            <button
-              onClick={() => setCategory('education')}
-              style={{
-                padding: '10px 20px',
-                background: category === 'education' ? '#0066cc' : '#ffffff',
-                color: category === 'education' ? '#ffffff' : '#666',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              Education
-            </button>
-            <button
-              onClick={() => setCategory('health')}
-              style={{
-                padding: '10px 20px',
-                background: category === 'health' ? '#0066cc' : '#ffffff',
-                color: category === 'health' ? '#ffffff' : '#666',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              Health
-            </button>
-            <button
-              onClick={() => setCategory('general')}
-              style={{
-                padding: '10px 20px',
-                background: category === 'general' ? '#0066cc' : '#ffffff',
-                color: category === 'general' ? '#ffffff' : '#666',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              General
+              + New Discussion
             </button>
           </div>
 
-          <button
-            onClick={() => setShowCreatePost(!showCreatePost)}
-            style={{
-              padding: '12px 24px',
-              background: '#059669',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '15px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)'
-            }}
-          >
-            + New Discussion
-          </button>
+          {/* Sector Filter */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <label style={{ color: '#666', fontSize: '14px', fontWeight: '600' }}>Filter by Sector:</label>
+            <select
+              value={selectedSector}
+              onChange={(e) => setSelectedSector(e.target.value)}
+              style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', background: '#ffffff', cursor: 'pointer' }}
+            >
+              <option value="all">All Sectors</option>
+              {sectors.map((sector) => (
+                <option key={sector.id} value={sector.id}>{sector.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Create Post Form */}
@@ -165,6 +199,21 @@ function Forum() {
                   <option value="general">General</option>
                   <option value="education">Education</option>
                   <option value="health">Health</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+                  Sector (Optional)
+                </label>
+                <select
+                  value={newPost.sector_id || ''}
+                  onChange={(e) => setNewPost({ ...newPost, sector_id: e.target.value ? parseInt(e.target.value) : null })}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                >
+                  <option value="">No specific sector</option>
+                  {sectors.map((sector) => (
+                    <option key={sector.id} value={sector.id}>{sector.name}</option>
+                  ))}
                 </select>
               </div>
               <div style={{ marginBottom: '16px' }}>
@@ -247,9 +296,23 @@ function Forum() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0' }}>
-                      {post.title}
-                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                      <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0' }}>
+                        {post.title}
+                      </h3>
+                      {post.sector_name && (
+                        <span style={{
+                          padding: '2px 8px',
+                          background: '#f0f9ff',
+                          color: '#0066cc',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '600'
+                        }}>
+                          {post.sector_name}
+                        </span>
+                      )}
+                    </div>
                     <p style={{ color: '#666', fontSize: '14px', margin: '0', lineHeight: '1.5' }}>
                       {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
                     </p>
@@ -262,7 +325,8 @@ function Forum() {
                     fontSize: '12px',
                     fontWeight: '600',
                     textTransform: 'capitalize',
-                    marginLeft: '16px'
+                    marginLeft: '16px',
+                    flexShrink: 0
                   }}>
                     {post.category}
                   </span>

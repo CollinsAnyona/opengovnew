@@ -16,6 +16,7 @@ class ForumPost(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    sector_id = Column(Integer, ForeignKey("sectors.id"), nullable=True)
     title = Column(String(200), nullable=False)
     content = Column(Text, nullable=False)
     category = Column(String(50), nullable=False)
@@ -26,4 +27,5 @@ class ForumPost(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     user = relationship("User")
+    sector = relationship("Sector")
     replies = relationship("ForumReply", back_populates="post", cascade="all, delete-orphan")
