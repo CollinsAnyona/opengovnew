@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react';
-import { BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import apiClient from '../api/apiClient';
 
 function Dashboard() {
   const [sector, setSector] = useState('');
   const [county, setCounty] = useState('');
   const [year, setYear] = useState('');
+  const [tableCounty, setTableCounty] = useState('');
+  const [tableYear, setTableYear] = useState('');
   const [sectors, setSectors] = useState([]);
   const [counties, setCounties] = useState([]);
   const [years, setYears] = useState([]);
   const [budgets, setBudgets] = useState([]);
+  const [tableBudgets, setTableBudgets] = useState([]);
   const [expenditures, setExpenditures] = useState([]);
   const [feedback, setFeedback] = useState([]);
   const [budgetAnalytics, setBudgetAnalytics] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [chartType, setChartType] = useState('bar'); // 'bar' or 'line'
 
   useEffect(() => {
     const fetchSectors = async () => {
@@ -30,57 +34,49 @@ function Dashboard() {
     fetchSectors();
   }, []);
 
+  // Fetch filter options only once per sector
   useEffect(() => {
     if (!sector) return;
+    const fetchFilterOptions = async () => {
+      try {
+        const allBudgetsRes = await apiClient.get(`/budgets?sector=${sector}`);
+        const uniqueCounties = [...new Set(allBudgetsRes.data.map(b => b.county).filter(c => c))];
+        setCounties(uniqueCounties.sort());
+        const uniqueYears = [...new Set(allBudgetsRes.data.map(b => b.year))].sort((a, b) => b - a);
+        setYears(uniqueYears);
+      } catch (error) {
+        console.error('Failed to fetch filter options:', error);
+      }
+    };
+    fetchFilterOptions();
+  }, [sector]);
+
+  // Fetch data only when filters are applied
+  useEffect(() => {
+    if (!sector) return;
+    
     const fetchData = async () => {
       setLoading(true);
       try {
-        // First fetch all budgets for the sector to get filter options
-        let allBudgetsUrl = `/budgets?sector=${sector}`;
-        console.log('Fetching all budgets from:', allBudgetsUrl);
-        const allBudgetsRes = await apiClient.get(allBudgetsUrl);
-        console.log('All budgets response:', allBudgetsRes.data);
-        
-        // Extract unique counties and years from ALL budgets
-        const uniqueCounties = [...new Set(allBudgetsRes.data.map(b => b.county).filter(c => c))];
-        setCounties(uniqueCounties.sort());
-        console.log('Counties:', uniqueCounties);
-        
-        const uniqueYears = [...new Set(allBudgetsRes.data.map(b => b.year))].sort((a, b) => b - a);
-        setYears(uniqueYears);
-        console.log('Years:', uniqueYears);
-        
-        // Now fetch filtered data
         let budgetUrl = `/budgets?sector=${sector}`;
         if (county) budgetUrl += `&county=${county}`;
         if (year) budgetUrl += `&year=${year}`;
-        console.log('Fetching filtered budgets from:', budgetUrl);
         
-        const [budgetRes, expRes, feedbackRes] = await Promise.all([
-          apiClient.get(budgetUrl),
-          apiClient.get('/expenditures'),
-          apiClient.get('/feedback')
-        ]);
-        console.log('Filtered budgets:', budgetRes.data);
-        console.log('Expenditures:', expRes.data);
+        const budgetRes = await apiClient.get(budgetUrl);
         setBudgets(budgetRes.data);
-        setExpenditures(expRes.data);
-        setFeedback(feedbackRes.data);
         
-        // Fetch analytics separately (non-blocking)
-        try {
-          const analyticsRes = await apiClient.get(`/budgets/analytics?sector=${sector}`);
-          setBudgetAnalytics(analyticsRes.data);
-        } catch (analyticsError) {
-          console.error('Analytics failed (non-critical):', analyticsError);
-          setBudgetAnalytics(null);
+        // Only fetch expenditures for the filtered budgets
+        const budgetIds = budgetRes.data.map(b => b.id);
+        if (budgetIds.length > 0) {
+          const expRes = await apiClient.get('/expenditures');
+          setExpenditures(expRes.data.filter(e => budgetIds.includes(e.budget_id)));
+        } else {
+          setExpenditures([]);
         }
       } catch (error) {
         console.error('Failed to fetch data:', error);
         setBudgets([]);
         setExpenditures([]);
-        setFeedback([]);
-        setBudgetAnalytics(null);
       } finally {
         setLoading(false);
       }
@@ -88,19 +84,81 @@ function Dashboard() {
     fetchData();
   }, [sector, county, year]);
 
-  const getTotalBudget = () => {
-    const total = budgets.reduce((sum, b) => sum + b.amount, 0);
-    console.log('Total Budget calculated:', total, 'from', budgets.length, 'budgets');
-    return total;
+  // Fetch table data independently
+  useEffect(() => {
+    if (!sector || (!tableYear && !tableCounty)) {
+      setTableBudgets([]);
+      return;
+    }
+    
+    const fetchTableData = async () => {
+      try {
+        let budgetUrl = `/budgets?sector=${sector}`;
+        if (tableCounty) budgetUrl += `&county=${tableCounty}`;
+        if (tableYear) budgetUrl += `&year=${tableYear}`;
+        
+        const budgetRes = await apiClient.get(budgetUrl);
+        setTableBudgets(budgetRes.data);
+      } catch (error) {
+        console.error('Failed to fetch table data:', error);
+        setTableBudgets([]);
+      }
+    };
+    fetchTableData();
+  }, [sector, tableCounty, tableYear]);
+
+  // Fetch feedback and analytics once on mount
+  useEffect(() => {
+    const fetchStaticData = async () => {
+      try {
+        const feedbackRes = await apiClient.get('/feedback');
+        setFeedback(feedbackRes.data);
+        
+        if (sector) {
+          const analyticsRes = await apiClient.get(`/budgets/analytics?sector=${sector}`);
+          setBudgetAnalytics(analyticsRes.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch static data:', error);
+      }
+    };
+    fetchStaticData();
+  }, [sector]);
+
+  const getTotalBudget = () => budgets.reduce((sum, b) => sum + b.amount, 0);
+  const getTotalSpent = () => expenditures.reduce((sum, e) => sum + e.amount, 0);
+
+  // Group budgets by county and year for stacked bar chart
+  const countyYearData = {};
+  const allYears = new Set();
+  
+  budgets.forEach(b => {
+    const countyName = b.county || 'Unspecified';
+    const year = b.year;
+    allYears.add(year);
+    
+    if (!countyYearData[countyName]) {
+      countyYearData[countyName] = { name: countyName };
+    }
+    countyYearData[countyName][year] = (countyYearData[countyName][year] || 0) + b.amount;
+  });
+  
+  const budgetByCounty = Object.values(countyYearData).sort((a, b) => {
+    const totalA = Object.keys(a).filter(k => k !== 'name').reduce((sum, k) => sum + a[k], 0);
+    const totalB = Object.keys(b).filter(k => k !== 'name').reduce((sum, k) => sum + b[k], 0);
+    return totalB - totalA;
+  });
+  
+  const yearColors = {
+    2020: '#0066cc',
+    2021: '#059669',
+    2022: '#f59e0b',
+    2023: '#dc2626',
+    2024: '#7c3aed',
+    2025: '#06b6d4'
   };
-  const getTotalSpent = () => {
-    const budgetIds = budgets.map(b => b.id);
-    const total = expenditures
-      .filter(e => budgetIds.includes(e.budget_id))
-      .reduce((sum, e) => sum + e.amount, 0);
-    console.log('Total Spent calculated:', total, 'from', expenditures.length, 'expenditures');
-    return total;
-  };
+
+  const COLORS = ['#0066cc', '#059669', '#f59e0b', '#dc2626', '#7c3aed', '#06b6d4', '#10b981', '#f97316', '#ef4444', '#8b5cf6'];
 
   const feedbackByStatus = [
     { name: 'Submitted', value: feedback.filter(f => f.status === 'submitted').length, color: '#0066cc' },
@@ -110,13 +168,30 @@ function Dashboard() {
     { name: 'Escalated', value: feedback.filter(f => f.status === 'escalated').length, color: '#991b1b' }
   ].filter(item => item.value > 0);
 
-  const budgetChartData = budgets.map(b => ({
-    year: b.year,
-    budget: b.amount,
-    spent: expenditures
-      .filter(e => e.budget_id === b.id)
-      .reduce((sum, e) => sum + e.amount, 0)
-  }));
+  // Group budgets and expenditures by year
+  const budgetChartData = Object.values(
+    budgets.reduce((acc, b) => {
+      if (!acc[b.year]) {
+        acc[b.year] = { year: b.year, budget: 0, spent: 0 };
+      }
+      acc[b.year].budget += b.amount;
+      return acc;
+    }, {})
+  );
+
+  // Add expenditures to the grouped data
+  expenditures.forEach(exp => {
+    const budget = budgets.find(b => b.id === exp.budget_id);
+    if (budget) {
+      const yearData = budgetChartData.find(d => d.year === budget.year);
+      if (yearData) {
+        yearData.spent += exp.amount;
+      }
+    }
+  });
+
+  // Sort by year
+  budgetChartData.sort((a, b) => a.year - b.year);
 
   const totalBudget = getTotalBudget();
   const totalSpent = getTotalSpent();
@@ -432,23 +507,88 @@ function Dashboard() {
         {/* Charts Section */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px', marginBottom: '30px' }}>
           <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
-              Budget vs Expenditure
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0' }}>
+                Budget vs Expenditure
+              </h3>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setChartType('bar')}
+                  style={{
+                    padding: '8px 16px',
+                    background: chartType === 'bar' ? '#0066cc' : '#ffffff',
+                    color: chartType === 'bar' ? '#ffffff' : '#666',
+                    border: '2px solid #0066cc',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Bar Chart
+                </button>
+                <button
+                  onClick={() => setChartType('line')}
+                  style={{
+                    padding: '8px 16px',
+                    background: chartType === 'line' ? '#0066cc' : '#ffffff',
+                    color: chartType === 'line' ? '#ffffff' : '#666',
+                    border: '2px solid #0066cc',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Line Chart
+                </button>
+              </div>
+            </div>
             {budgetChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={budgetChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="year" stroke="#666" style={{ fontSize: '13px' }} />
-                  <YAxis stroke="#666" style={{ fontSize: '13px' }} />
-                  <Tooltip 
-                    contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                    formatter={(value) => `KSh ${value.toLocaleString()}`} 
-                  />
-                  <Legend />
-                  <Bar dataKey="budget" fill="#0066cc" name="Budget" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="spent" fill="#dc2626" name="Spent" radius={[6, 6, 0, 0]} />
-                </BarChart>
+                {chartType === 'bar' ? (
+                  <BarChart data={budgetChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="year" stroke="#666" style={{ fontSize: '13px' }} />
+                    <YAxis stroke="#666" style={{ fontSize: '13px' }} />
+                    <Tooltip 
+                      contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                      formatter={(value) => `KSh ${value.toLocaleString()}`} 
+                    />
+                    <Legend />
+                    <Bar dataKey="budget" fill="#0066cc" name="Budget" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="spent" fill="#dc2626" name="Spent" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                ) : (
+                  <LineChart data={budgetChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="year" stroke="#666" style={{ fontSize: '13px' }} />
+                    <YAxis stroke="#666" style={{ fontSize: '13px' }} />
+                    <Tooltip 
+                      contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                      formatter={(value) => `KSh ${value.toLocaleString()}`} 
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="budget" 
+                      stroke="#0066cc" 
+                      strokeWidth={3}
+                      name="Budget"
+                      dot={{ fill: '#0066cc', r: 5 }}
+                      activeDot={{ r: 7 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="spent" 
+                      stroke="#dc2626" 
+                      strokeWidth={3}
+                      name="Spent"
+                      dot={{ fill: '#dc2626', r: 5 }}
+                      activeDot={{ r: 7 }}
+                    />
+                  </LineChart>
+                )}
               </ResponsiveContainer>
             ) : (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: '#999' }}>No budget data available</div>
@@ -457,30 +597,44 @@ function Dashboard() {
 
           <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
-              Citizen Feedback Status
+              Budget Distribution by County & Year
             </h3>
-            {feedbackByStatus.length > 0 ? (
+            {budgetByCounty.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={feedbackByStatus}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={90}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {feedbackByStatus.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
-                </PieChart>
+                <BarChart data={budgetByCounty}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#666" 
+                    style={{ fontSize: '12px' }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis 
+                    stroke="#666" 
+                    style={{ fontSize: '13px' }}
+                    tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
+                  />
+                  <Tooltip 
+                    contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                    formatter={(value) => `KSh ${value.toLocaleString()}`}
+                  />
+                  <Legend />
+                  {Array.from(allYears).sort().map((year, index) => (
+                    <Bar 
+                      key={year} 
+                      dataKey={year} 
+                      stackId="a" 
+                      fill={yearColors[year] || COLORS[index % COLORS.length]} 
+                      name={`Year ${year}`}
+                      radius={index === allYears.size - 1 ? [6, 6, 0, 0] : [0, 0, 0, 0]}
+                    />
+                  ))}
+                </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#999' }}>No feedback data available</div>
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#999' }}>No county data available</div>
             )}
           </div>
         </div>
@@ -488,26 +642,99 @@ function Dashboard() {
         {/* Budget Details Table */}
         <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <div style={{ padding: '24px 28px', borderBottom: '1px solid #e5e7eb' }}>
-            <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0' }}>
+            <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0 0 20px 0' }}>
               Budget Breakdown
             </h3>
+            {/* Filters inside Budget Breakdown */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+              {/* Year Filter */}
+              {years.length > 0 && (
+                <div>
+                  <label style={{ display: 'block', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+                    Filter by Year
+                  </label>
+                  <select
+                    value={tableYear}
+                    onChange={(e) => setTableYear(e.target.value)}
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px 14px', 
+                      background: '#ffffff', 
+                      border: '2px solid #d1d5db', 
+                      borderRadius: '8px', 
+                      color: '#1a1a1a', 
+                      fontSize: '14px', 
+                      fontWeight: '500', 
+                      cursor: 'pointer',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="">All Years</option>
+                    {years.map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* County Filter */}
+              {counties.length > 0 && (
+                <div>
+                  <label style={{ display: 'block', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+                    Filter by County
+                  </label>
+                  <select
+                    value={tableCounty}
+                    onChange={(e) => setTableCounty(e.target.value)}
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px 14px', 
+                      background: '#ffffff', 
+                      border: '2px solid #d1d5db', 
+                      borderRadius: '8px', 
+                      color: '#1a1a1a', 
+                      fontSize: '14px', 
+                      fontWeight: '500', 
+                      cursor: 'pointer',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="">All Counties</option>
+                    {counties.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
           </div>
-          {budgets.length === 0 ? (
-            <div style={{ padding: '60px 28px', textAlign: 'center', color: '#999' }}>No budget data available for this sector</div>
+          {!tableYear && !tableCounty ? (
+            <div style={{ padding: '60px 28px', textAlign: 'center', color: '#999' }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 16px' }}>
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              <p style={{ fontSize: '16px', fontWeight: '600', color: '#666', marginBottom: '8px' }}>Please select filters to view budget breakdown</p>
+              <p style={{ fontSize: '14px', color: '#999' }}>Choose a year and/or county from the filters above</p>
+            </div>
+          ) : tableBudgets.length === 0 ? (
+            <div style={{ padding: '60px 28px', textAlign: 'center', color: '#999' }}>No budget data available for the selected filters</div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#f9fafb' }}>
                     <th style={{ padding: '16px 28px', textAlign: 'left', color: '#666', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Year</th>
+                    <th style={{ padding: '16px 28px', textAlign: 'left', color: '#666', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>County</th>
                     <th style={{ padding: '16px 28px', textAlign: 'left', color: '#666', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Amount</th>
                     <th style={{ padding: '16px 28px', textAlign: 'left', color: '#666', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Description</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {budgets.map((budget, idx) => (
+                  {tableBudgets.map((budget, idx) => (
                     <tr key={budget.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
                       <td style={{ padding: '18px 28px', color: '#1a1a1a', fontSize: '15px', fontWeight: '600' }}>{budget.year}</td>
+                      <td style={{ padding: '18px 28px', color: '#0066cc', fontSize: '15px', fontWeight: '600' }}>{budget.county || 'N/A'}</td>
                       <td style={{ padding: '18px 28px', color: '#059669', fontSize: '15px', fontWeight: '700' }}>KSh {budget.amount.toLocaleString()}</td>
                       <td style={{ padding: '18px 28px', color: '#666', fontSize: '14px' }}>{budget.description}</td>
                     </tr>

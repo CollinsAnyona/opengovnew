@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import apiClient from '../api/apiClient';
 
 const Admin = () => {
@@ -68,6 +69,14 @@ const Admin = () => {
   const flaggedCount = feedback.filter(f => f.status === 'flagged').length;
   const pendingCount = feedback.filter(f => f.status === 'submitted').length;
   const escalatedCount = feedback.filter(f => f.status === 'escalated').length;
+
+  const feedbackByStatus = [
+    { name: 'Submitted', value: feedback.filter(f => f.status === 'submitted').length, color: '#0066cc' },
+    { name: 'Under Review', value: feedback.filter(f => f.status === 'under_review').length, color: '#f59e0b' },
+    { name: 'Approved', value: feedback.filter(f => f.status === 'approved').length, color: '#059669' },
+    { name: 'Flagged', value: feedback.filter(f => f.status === 'flagged').length, color: '#dc2626' },
+    { name: 'Escalated', value: feedback.filter(f => f.status === 'escalated').length, color: '#991b1b' }
+  ].filter(item => item.value > 0);
 
   return (
     <div>
@@ -198,6 +207,38 @@ const Admin = () => {
           </div>
         </div>
       )}
+
+      {/* Feedback Status Chart */}
+      <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', marginBottom: '30px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>
+          Citizen Feedback Status Overview
+        </h3>
+        {feedbackByStatus.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={feedbackByStatus}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={90}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {feedbackByStatus.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#999' }}>No feedback data available</div>
+        )}
+      </div>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Administrative Oversight Panel
