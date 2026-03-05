@@ -37,6 +37,16 @@ function Login() {
       
       if (response.data && response.data.access_token) {
         localStorage.setItem('access_token', response.data.access_token);
+        
+        // Decode token to get user info
+        const token = response.data.access_token;
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+        
+        localStorage.setItem('user_name', payload.name);
+        localStorage.setItem('user_role', payload.role);
+        
         console.log('Token saved to localStorage');
         console.log('Navigating to dashboard...');
         // Force a full page reload to ensure token is recognized

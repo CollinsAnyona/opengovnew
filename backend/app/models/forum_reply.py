@@ -25,4 +25,4 @@ class ForumReply(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     post = relationship("ForumPost", back_populates="replies")
-    user = relationship("User", back_populates="forum_replies")
+    user = relationship("User")

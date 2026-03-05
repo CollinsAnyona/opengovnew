@@ -25,5 +25,5 @@ class ForumPost(Base):
     admin_action = Column(String(200), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    user = relationship("User", back_populates="forum_posts")
+    user = relationship("User")
     replies = relationship("ForumReply", back_populates="post", cascade="all, delete-orphan")

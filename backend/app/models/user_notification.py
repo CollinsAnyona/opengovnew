@@ -14,4 +14,4 @@ class UserNotification(Base):
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    user = relationship("User", back_populates="notifications")
+    user = relationship("User")

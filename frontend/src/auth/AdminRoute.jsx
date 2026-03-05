@@ -9,7 +9,7 @@ function AdminRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
   
-  if (userRole !== 'admin') {
+  if (userRole !== 'admin' && userRole !== 'super_admin') {
     return <Navigate to="/dashboard" replace />;
   }
   

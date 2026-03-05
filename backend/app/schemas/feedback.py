@@ -6,6 +6,8 @@ class FeedbackStatus(str, Enum):
     submitted = "submitted"
     flagged = "flagged"
     approved = "approved"
+    under_review = "under_review"
+    escalated = "escalated"
 
 class FeedbackCreate(BaseModel):
     sector_id: int

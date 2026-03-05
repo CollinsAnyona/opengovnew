@@ -23,57 +23,71 @@ function App() {
         <Route 
           path="/dashboard" 
           element={
-            <Layout>
-              <Dashboard />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
           } 
         />
         <Route 
           path="/feedback" 
           element={
-            <Layout>
-              <Feedback />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Feedback />
+              </Layout>
+            </ProtectedRoute>
           } 
         />
         <Route 
           path="/expenditures" 
           element={
-            <Layout>
-              <Expenditures />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Expenditures />
+              </Layout>
+            </ProtectedRoute>
           } 
         />
         <Route 
           path="/forum" 
           element={
-            <Layout>
-              <Forum />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Forum />
+              </Layout>
+            </ProtectedRoute>
           } 
         />
         <Route 
           path="/forum/:id" 
           element={
-            <Layout>
-              <ForumPost />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <ForumPost />
+              </Layout>
+            </ProtectedRoute>
           } 
         />
         <Route 
           path="/admin" 
           element={
-            <Layout>
-              <Admin />
-            </Layout>
+            <AdminRoute>
+              <Layout>
+                <Admin />
+              </Layout>
+            </AdminRoute>
           } 
         />
         <Route 
           path="/super-admin" 
           element={
-            <Layout>
-              <SuperAdmin />
-            </Layout>
+            <AdminRoute>
+              <Layout>
+                <SuperAdmin />
+              </Layout>
+            </AdminRoute>
           } 
         />
       </Routes>

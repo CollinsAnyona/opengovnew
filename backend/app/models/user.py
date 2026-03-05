@@ -19,7 +19,3 @@ class User(Base):
     role = Column(Enum(UserRole), default=UserRole.citizen)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
-    forum_posts = relationship("ForumPost", back_populates="user")
-    forum_replies = relationship("ForumReply", back_populates="user")
-    notifications = relationship("UserNotification", back_populates="user")
