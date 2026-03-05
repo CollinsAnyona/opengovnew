@@ -9,5 +9,5 @@ class Sector(Base):
     name = Column(String, unique=True, nullable=False)
     description = Column(Text, nullable=True)
     
-    budgets = relationship("Budget", back_populates="sector", lazy="dynamic")
+    budgets = relationship("Budget", back_populates="sector_rel", lazy="dynamic")
     feedback = relationship("Feedback", back_populates="sector", lazy="dynamic")

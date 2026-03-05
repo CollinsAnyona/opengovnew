@@ -1,16 +1,25 @@
 from sqlalchemy.orm import Session
 from app.models.budget import Budget
-from app.models.sector import Sector
-from typing import Dict
+from typing import Dict, Optional
 
 class AnalyticsService:
     @staticmethod
-    def calculate_budget_analytics(db: Session, sector_name: str) -> Dict:
-        sector = db.query(Sector).filter(Sector.name == sector_name).first()
-        if not sector:
-            return None
+    def calculate_budget_analytics(
+        db: Session, 
+        sector_name: str,
+        county: Optional[str] = None,
+        budget_type: Optional[str] = None
+    ) -> Dict:
+        # Build query with new schema
+        query = db.query(Budget).filter(Budget.sector == sector_name)
         
-        budgets = db.query(Budget).filter(Budget.sector_id == sector.id).all()
+        # Apply optional filters
+        if county:
+            query = query.filter(Budget.county == county)
+        if budget_type:
+            query = query.filter(Budget.budget_type == budget_type)
+        
+        budgets = query.all()
         
         if not budgets:
             return {
@@ -21,13 +30,15 @@ class AnalyticsService:
                 "largest_year": None
             }
         
-        total_allocation = sum(b.amount for b in budgets)
+        total_allocation = sum(b.allocation_kes for b in budgets)
         
+        # Group by fiscal_year
         yearly_distribution = {}
         for budget in budgets:
-            year = str(budget.year)
-            yearly_distribution[year] = yearly_distribution.get(year, 0) + budget.amount
+            year = budget.fiscal_year
+            yearly_distribution[year] = yearly_distribution.get(year, 0) + budget.allocation_kes
         
+        # Calculate growth rate
         sorted_years = sorted(yearly_distribution.keys())
         growth_rate = 0
         if len(sorted_years) >= 2:
@@ -45,5 +56,5 @@ class AnalyticsService:
             "total_allocation": total_allocation,
             "yearly_distribution": yearly_distribution,
             "growth_rate": round(growth_rate, 2),
-            "largest_year": int(largest_year) if largest_year else None
+            "largest_year": largest_year
         }

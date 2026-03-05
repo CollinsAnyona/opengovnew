@@ -24,7 +24,7 @@ def create_super_admin():
         db.commit()
         db.refresh(super_admin)
         
-        print("✓ Super admin created successfully!")
+        print("Super admin created successfully!")
         print(f"Email: {super_admin.email}")
         print(f"Password: Collins.anyona04")
         print("\nIMPORTANT: Change this password immediately after first login!")

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import apiClient from '../api/apiClient';
 
 function Dashboard() {
@@ -8,6 +8,7 @@ function Dashboard() {
   const [budgets, setBudgets] = useState([]);
   const [expenditures, setExpenditures] = useState([]);
   const [feedback, setFeedback] = useState([]);
+  const [budgetAnalytics, setBudgetAnalytics] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,19 +31,22 @@ function Dashboard() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [budgetRes, expRes, feedbackRes] = await Promise.all([
+        const [budgetRes, expRes, feedbackRes, analyticsRes] = await Promise.all([
           apiClient.get(`/budgets?sector=${sector}`),
           apiClient.get('/expenditures'),
-          apiClient.get('/feedback')
+          apiClient.get('/feedback'),
+          apiClient.get(`/budgets/analytics?sector=${sector}`)
         ]);
         setBudgets(budgetRes.data);
         setExpenditures(expRes.data);
         setFeedback(feedbackRes.data);
+        setBudgetAnalytics(analyticsRes.data);
       } catch (error) {
         console.error('Failed to fetch data:', error);
         setBudgets([]);
         setExpenditures([]);
         setFeedback([]);
+        setBudgetAnalytics(null);
       } finally {
         setLoading(false);
       }
@@ -78,6 +82,14 @@ function Dashboard() {
   const totalSpent = getTotalSpent();
   const remaining = totalBudget - totalSpent;
   const utilizationRate = totalBudget > 0 ? ((totalSpent / totalBudget) * 100).toFixed(1) : 0;
+
+  // Convert yearly_distribution object to array for LineChart
+  const trendData = budgetAnalytics?.yearly_distribution 
+    ? Object.entries(budgetAnalytics.yearly_distribution).map(([year, amount]) => ({
+        year: parseInt(year),
+        amount: amount
+      })).sort((a, b) => a.year - b.year)
+    : [];
 
   if (loading) {
     return (
@@ -136,31 +148,72 @@ function Dashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Budget</div>
-            <div style={{ color: '#0066cc', fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>KSh {totalBudget.toLocaleString()}</div>
-            <div style={{ color: '#999', fontSize: '13px' }}>Allocated for FY 2024/2025</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Budget</div>
+            <div style={{ color: '#0066cc', fontSize: '24px', fontWeight: '700', marginBottom: '4px', wordBreak: 'break-word' }}>KSh {totalBudget.toLocaleString()}</div>
+            <div style={{ color: '#999', fontSize: '12px' }}>Allocated for FY 2024/2025</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Expenditure</div>
-            <div style={{ color: '#dc2626', fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>KSh {totalSpent.toLocaleString()}</div>
-            <div style={{ color: '#999', fontSize: '13px' }}>Amount spent to date</div>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Expenditure</div>
+            <div style={{ color: '#dc2626', fontSize: '24px', fontWeight: '700', marginBottom: '4px', wordBreak: 'break-word' }}>KSh {totalSpent.toLocaleString()}</div>
+            <div style={{ color: '#999', fontSize: '12px' }}>Amount spent to date</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Available</div>
-            <div style={{ color: '#059669', fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>KSh {remaining.toLocaleString()}</div>
-            <div style={{ color: '#999', fontSize: '13px' }}>Remaining balance</div>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Available</div>
+            <div style={{ color: '#059669', fontSize: '24px', fontWeight: '700', marginBottom: '4px', wordBreak: 'break-word' }}>KSh {remaining.toLocaleString()}</div>
+            <div style={{ color: '#999', fontSize: '12px' }}>Remaining balance</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Utilization</div>
-            <div style={{ color: '#7c3aed', fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>{utilizationRate}%</div>
-            <div style={{ color: '#999', fontSize: '13px' }}>Budget execution rate</div>
+          <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Utilization</div>
+            <div style={{ color: '#7c3aed', fontSize: '24px', fontWeight: '700', marginBottom: '4px', wordBreak: 'break-word' }}>{utilizationRate}%</div>
+            <div style={{ color: '#999', fontSize: '12px' }}>Budget execution rate</div>
           </div>
         </div>
+
+        {/* Budget Allocation Trend */}
+        {trendData.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Budget Allocation Trend Over Time</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis 
+                  dataKey="year" 
+                  stroke="#64748b" 
+                  style={{ fontSize: '13px', fontWeight: 600 }} 
+                />
+                <YAxis 
+                  stroke="#64748b" 
+                  style={{ fontSize: '13px', fontWeight: 600 }}
+                  tickFormatter={(value) => `KSh ${(value / 1000000).toFixed(1)}M`}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: '#ffffff', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '8px', 
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
+                  }}
+                  formatter={(value) => [`KSh ${value.toLocaleString()}`, 'Allocation']}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px', fontWeight: 600 }} />
+                <Line 
+                  type="monotone" 
+                  dataKey="amount" 
+                  stroke="#1e40af" 
+                  strokeWidth={3}
+                  name="Budget Allocation"
+                  dot={{ fill: '#1e40af', r: 5 }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
         {/* AI Summary Section - Citizen Version */}
         {totalBudget > 0 && (

@@ -11,6 +11,7 @@ from app.routes.forum import router as forum_router
 from app.routes.super_admin import router as super_admin_router
 from app.db.session import engine
 from app.db.base import Base
+from app.models import user, sector, budget, expenditure, feedback, forum_post, forum_reply, user_notification, audit_log
 
 Base.metadata.create_all(bind=engine)
 

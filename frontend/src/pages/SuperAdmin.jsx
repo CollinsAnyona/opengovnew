@@ -17,6 +17,12 @@ function SuperAdmin() {
   const [newSector, setNewSector] = useState({ name: '', description: '' });
   const [newBudget, setNewBudget] = useState({ sector_id: '', year: new Date().getFullYear(), amount: '', description: '' });
   const [newExpenditure, setNewExpenditure] = useState({ budget_id: '', amount: '', description: '' });
+  
+  // Budget upload state
+  const [uploadFile, setUploadFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
+  const [showErrors, setShowErrors] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -200,6 +206,34 @@ function SuperAdmin() {
       fetchData();
     } catch (error) {
       alert('Failed to delete expenditure');
+    }
+  };
+
+  const handleFileUpload = async (e) => {
+    e.preventDefault();
+    if (!uploadFile) {
+      alert('Please select a file');
+      return;
+    }
+
+    setUploading(true);
+    setUploadResult(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+
+      const response = await apiClient.post('/budgets/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setUploadResult(response.data);
+      setUploadFile(null);
+      fetchData();
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Upload failed');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -421,6 +455,73 @@ function SuperAdmin() {
             {/* Budgets Tab */}
             {activeTab === 'budgets' && (
               <div>
+                {/* Budget Upload Section */}
+                <div className="bg-white border-2 border-blue-600 rounded-xl p-6 mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Upload Budget Dataset</h3>
+                  <form onSubmit={handleFileUpload}>
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Select CSV or XLSX File
+                        </label>
+                        <input
+                          type="file"
+                          accept=".csv,.xlsx"
+                          onChange={(e) => setUploadFile(e.target.files[0])}
+                          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={uploading || !uploadFile}
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        {uploading ? 'Uploading...' : 'Upload'}
+                      </button>
+                    </div>
+                  </form>
+
+                  {uploadResult && (
+                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <h4 className="font-semibold text-green-900 mb-2">Upload Complete</h4>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">Inserted:</span>
+                          <span className="ml-2 font-bold text-green-700">{uploadResult.inserted}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Updated:</span>
+                          <span className="ml-2 font-bold text-blue-700">{uploadResult.updated}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Skipped:</span>
+                          <span className="ml-2 font-bold text-orange-700">{uploadResult.skipped}</span>
+                        </div>
+                      </div>
+
+                      {uploadResult.errors && uploadResult.errors.length > 0 && (
+                        <div className="mt-3">
+                          <button
+                            onClick={() => setShowErrors(!showErrors)}
+                            className="text-sm text-red-600 hover:text-red-800 font-medium"
+                          >
+                            {showErrors ? 'Hide' : 'Show'} {uploadResult.errors.length} Error(s)
+                          </button>
+                          {showErrors && (
+                            <div className="mt-2 max-h-40 overflow-y-auto bg-red-50 border border-red-200 rounded p-3">
+                              {uploadResult.errors.map((err, idx) => (
+                                <div key={idx} className="text-xs text-red-800 mb-1">
+                                  <span className="font-semibold">Row {err.row_index}:</span> {err.reason}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)', border: '2px solid #93c5fd', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

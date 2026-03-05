@@ -12,5 +12,5 @@ class Budget(Base):
     description = Column(String, nullable=False)
     citizen_explanation = Column(Text, nullable=True)
     
-    sector = relationship("Sector", back_populates="budgets")
+    sector_rel = relationship("Sector", back_populates="budgets")
     expenditures = relationship("Expenditure", back_populates="budget")
