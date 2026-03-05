@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.budget import Budget
+from app.models.sector import Sector
 from typing import Dict, Optional
 
 class AnalyticsService:
@@ -10,14 +11,23 @@ class AnalyticsService:
         county: Optional[str] = None,
         budget_type: Optional[str] = None
     ) -> Dict:
-        # Build query with new schema
-        query = db.query(Budget).filter(Budget.sector == sector_name)
+        # Find sector by name
+        sector_obj = db.query(Sector).filter(Sector.name.ilike(sector_name)).first()
+        if not sector_obj:
+            return {
+                "sector": sector_name,
+                "total_allocation": 0,
+                "yearly_distribution": {},
+                "growth_rate": 0,
+                "largest_year": None
+            }
+        
+        # Build query with sector_id
+        query = db.query(Budget).filter(Budget.sector_id == sector_obj.id)
         
         # Apply optional filters
         if county:
-            query = query.filter(Budget.county == county)
-        if budget_type:
-            query = query.filter(Budget.budget_type == budget_type)
+            query = query.filter(Budget.county.ilike(county))
         
         budgets = query.all()
         
@@ -30,13 +40,13 @@ class AnalyticsService:
                 "largest_year": None
             }
         
-        total_allocation = sum(b.allocation_kes for b in budgets)
+        total_allocation = sum(b.amount for b in budgets)
         
-        # Group by fiscal_year
+        # Group by year
         yearly_distribution = {}
         for budget in budgets:
-            year = budget.fiscal_year
-            yearly_distribution[year] = yearly_distribution.get(year, 0) + budget.allocation_kes
+            year = budget.year
+            yearly_distribution[year] = yearly_distribution.get(year, 0) + budget.amount
         
         # Calculate growth rate
         sorted_years = sorted(yearly_distribution.keys())

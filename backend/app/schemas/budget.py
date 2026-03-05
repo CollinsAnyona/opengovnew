@@ -3,25 +3,18 @@ from typing import Optional
 from datetime import datetime
 
 class BudgetBase(BaseModel):
-    fiscal_year: str
-    sector: str
-    program: str
-    sub_program: str
-    county: str
-    budget_type: str
-    allocation_kes: int
-    expenditure_kes: int
-    implementing_agency: str
-    funding_source: str
-    project_status: str
+    sector_id: int
+    year: int
+    amount: float
     description: str
+    county: Optional[str] = None
 
 class BudgetCreate(BudgetBase):
     pass
 
 class BudgetRead(BudgetBase):
     id: int
-    created_at: datetime
+    citizen_explanation: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -39,6 +32,7 @@ class BudgetLegacyRead(BaseModel):
     year: Optional[int] = None
     amount: Optional[int] = None
     description: str
+    county: Optional[str] = None
     
     class Config:
         from_attributes = True

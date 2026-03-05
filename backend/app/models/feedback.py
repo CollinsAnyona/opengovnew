@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
-from ..db.base import Base
+from app.db.base import Base
 
 class FeedbackStatus(enum.Enum):
     submitted = "submitted"

@@ -4,7 +4,11 @@ import apiClient from '../api/apiClient';
 
 function Dashboard() {
   const [sector, setSector] = useState('');
+  const [county, setCounty] = useState('');
+  const [year, setYear] = useState('');
   const [sectors, setSectors] = useState([]);
+  const [counties, setCounties] = useState([]);
+  const [years, setYears] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [expenditures, setExpenditures] = useState([]);
   const [feedback, setFeedback] = useState([]);
@@ -31,16 +35,46 @@ function Dashboard() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [budgetRes, expRes, feedbackRes, analyticsRes] = await Promise.all([
-          apiClient.get(`/budgets?sector=${sector}`),
+        // First fetch all budgets for the sector to get filter options
+        let allBudgetsUrl = `/budgets?sector=${sector}`;
+        console.log('Fetching all budgets from:', allBudgetsUrl);
+        const allBudgetsRes = await apiClient.get(allBudgetsUrl);
+        console.log('All budgets response:', allBudgetsRes.data);
+        
+        // Extract unique counties and years from ALL budgets
+        const uniqueCounties = [...new Set(allBudgetsRes.data.map(b => b.county).filter(c => c))];
+        setCounties(uniqueCounties.sort());
+        console.log('Counties:', uniqueCounties);
+        
+        const uniqueYears = [...new Set(allBudgetsRes.data.map(b => b.year))].sort((a, b) => b - a);
+        setYears(uniqueYears);
+        console.log('Years:', uniqueYears);
+        
+        // Now fetch filtered data
+        let budgetUrl = `/budgets?sector=${sector}`;
+        if (county) budgetUrl += `&county=${county}`;
+        if (year) budgetUrl += `&year=${year}`;
+        console.log('Fetching filtered budgets from:', budgetUrl);
+        
+        const [budgetRes, expRes, feedbackRes] = await Promise.all([
+          apiClient.get(budgetUrl),
           apiClient.get('/expenditures'),
-          apiClient.get('/feedback'),
-          apiClient.get(`/budgets/analytics?sector=${sector}`)
+          apiClient.get('/feedback')
         ]);
+        console.log('Filtered budgets:', budgetRes.data);
+        console.log('Expenditures:', expRes.data);
         setBudgets(budgetRes.data);
         setExpenditures(expRes.data);
         setFeedback(feedbackRes.data);
-        setBudgetAnalytics(analyticsRes.data);
+        
+        // Fetch analytics separately (non-blocking)
+        try {
+          const analyticsRes = await apiClient.get(`/budgets/analytics?sector=${sector}`);
+          setBudgetAnalytics(analyticsRes.data);
+        } catch (analyticsError) {
+          console.error('Analytics failed (non-critical):', analyticsError);
+          setBudgetAnalytics(null);
+        }
       } catch (error) {
         console.error('Failed to fetch data:', error);
         setBudgets([]);
@@ -52,14 +86,20 @@ function Dashboard() {
       }
     };
     fetchData();
-  }, [sector]);
+  }, [sector, county, year]);
 
-  const getTotalBudget = () => budgets.reduce((sum, b) => sum + b.amount, 0);
+  const getTotalBudget = () => {
+    const total = budgets.reduce((sum, b) => sum + b.amount, 0);
+    console.log('Total Budget calculated:', total, 'from', budgets.length, 'budgets');
+    return total;
+  };
   const getTotalSpent = () => {
     const budgetIds = budgets.map(b => b.id);
-    return expenditures
+    const total = expenditures
       .filter(e => budgetIds.includes(e.budget_id))
       .reduce((sum, e) => sum + e.amount, 0);
+    console.log('Total Spent calculated:', total, 'from', expenditures.length, 'expenditures');
+    return total;
   };
 
   const feedbackByStatus = [
@@ -141,10 +181,73 @@ function Dashboard() {
           >
             {sectors.map((s) => (
               <option key={s.id} value={s.name}>
-                {s.name.charAt(0).toUpperCase() + s.name.slice(1)}
+                {s.name}
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Filters Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+          {/* Year Filter */}
+          {years.length > 0 && (
+            <div>
+              <label style={{ display: 'block', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>
+                Filter by Year
+              </label>
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  padding: '12px 16px', 
+                  background: '#ffffff', 
+                  border: '2px solid #d1d5db', 
+                  borderRadius: '8px', 
+                  color: '#1a1a1a', 
+                  fontSize: '15px', 
+                  fontWeight: '500', 
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="">All Years</option>
+                {years.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* County Filter */}
+          {counties.length > 0 && (
+            <div>
+              <label style={{ display: 'block', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>
+                Filter by County
+              </label>
+              <select
+                value={county}
+                onChange={(e) => setCounty(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  padding: '12px 16px', 
+                  background: '#ffffff', 
+                  border: '2px solid #d1d5db', 
+                  borderRadius: '8px', 
+                  color: '#1a1a1a', 
+                  fontSize: '15px', 
+                  fontWeight: '500', 
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <option value="">All Counties</option>
+                {counties.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import relationship
-from ..db.base import Base
+from app.db.base import Base
 
 class Sector(Base):
     __tablename__ = "sectors"
@@ -9,5 +9,5 @@ class Sector(Base):
     name = Column(String, unique=True, nullable=False)
     description = Column(Text, nullable=True)
     
-    budgets = relationship("Budget", back_populates="sector_rel", lazy="dynamic")
+    budgets = relationship("Budget", back_populates="sector", lazy="dynamic")
     feedback = relationship("Feedback", back_populates="sector", lazy="dynamic")

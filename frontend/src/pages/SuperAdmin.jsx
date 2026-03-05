@@ -23,6 +23,9 @@ function SuperAdmin() {
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
   const [showErrors, setShowErrors] = useState(false);
+  const [expandedBudget, setExpandedBudget] = useState(null);
+  const [expandedExpenditure, setExpandedExpenditure] = useState(null);
+  const [budgetFilters, setBudgetFilters] = useState({ county: '', year: '', sector: '' });
 
   useEffect(() => {
     fetchData();
@@ -580,13 +583,58 @@ function SuperAdmin() {
 
                 <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
                   <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb' }}>
-                    <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0' }}>All Budget Allocations</h3>
+                    <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>All Budget Allocations</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                      <select
+                        value={budgetFilters.county}
+                        onChange={(e) => setBudgetFilters({ ...budgetFilters, county: e.target.value })}
+                        style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px' }}
+                      >
+                        <option value="">All Counties</option>
+                        {[...new Set(budgets.map(b => b.county).filter(Boolean))].sort().map(county => (
+                          <option key={county} value={county}>{county}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={budgetFilters.year}
+                        onChange={(e) => setBudgetFilters({ ...budgetFilters, year: e.target.value })}
+                        style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px' }}
+                      >
+                        <option value="">All Years</option>
+                        {[...new Set(budgets.map(b => b.year).filter(Boolean))].sort((a,b) => b-a).map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={budgetFilters.sector}
+                        onChange={(e) => setBudgetFilters({ ...budgetFilters, sector: e.target.value })}
+                        style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px' }}
+                      >
+                        <option value="">All Sectors</option>
+                        {[...new Set(budgets.map(b => b.sector_name).filter(Boolean))].sort().map(sector => (
+                          <option key={sector} value={sector}>{sector}</option>
+                        ))}
+                      </select>
+                      {(budgetFilters.county || budgetFilters.year || budgetFilters.sector) && (
+                        <button
+                          onClick={() => setBudgetFilters({ county: '', year: '', sector: '' })}
+                          style={{ padding: '8px 12px', background: '#f3f4f6', color: '#666', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+                        >
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {budgets.length === 0 ? (
                     <div style={{ padding: '60px', textAlign: 'center', color: '#999' }}>No budgets created yet</div>
                   ) : (
                     <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                      {budgets.map(budget => (
+                      {budgets.filter(budget => {
+                        if (budgetFilters.county && budget.county !== budgetFilters.county) return false;
+                        if (budgetFilters.year && budget.year != budgetFilters.year) return false;
+                        if (budgetFilters.sector && budget.sector_name !== budgetFilters.sector) return false;
+                        return true;
+                      }).map(budget => (
                         <div key={budget.id} style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                             <div>
@@ -602,15 +650,22 @@ function SuperAdmin() {
                           </div>
                           <p style={{ color: '#1a1a1a', fontSize: '14px', margin: '0 0 12px 0', fontWeight: '600' }}>{budget.description}</p>
                           {budget.citizen_explanation && (
-                            <div style={{ background: '#f0f9ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px' }}>
-                              <div style={{ color: '#1e40af', fontSize: '13px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <>
+                              <button
+                                onClick={() => setExpandedBudget(expandedBudget === budget.id ? null : budget.id)}
+                                style={{ padding: '6px 12px', background: '#dbeafe', color: '#1e40af', border: '1px solid #93c5fd', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                                 </svg>
-                                AI Citizen Explanation:
-                              </div>
-                              <p style={{ color: '#1e40af', fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{budget.citizen_explanation}</p>
-                            </div>
+                                {expandedBudget === budget.id ? 'Hide' : 'View'} AI Explanation
+                              </button>
+                              {expandedBudget === budget.id && (
+                                <div style={{ background: '#f0f9ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
+                                  <p style={{ color: '#1e40af', fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{budget.citizen_explanation}</p>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       ))}
@@ -696,15 +751,22 @@ function SuperAdmin() {
                           </div>
                           <p style={{ color: '#1a1a1a', fontSize: '14px', margin: '0 0 12px 0', fontWeight: '600' }}>{exp.description}</p>
                           {exp.citizen_explanation && (
-                            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px' }}>
-                              <div style={{ color: '#991b1b', fontSize: '13px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#991b1b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <>
+                              <button
+                                onClick={() => setExpandedExpenditure(expandedExpenditure === exp.id ? null : exp.id)}
+                                style={{ padding: '6px 12px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#991b1b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                                 </svg>
-                                AI Citizen Explanation:
-                              </div>
-                              <p style={{ color: '#991b1b', fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{exp.citizen_explanation}</p>
-                            </div>
+                                {expandedExpenditure === exp.id ? 'Hide' : 'View'} AI Explanation
+                              </button>
+                              {expandedExpenditure === exp.id && (
+                                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
+                                  <p style={{ color: '#991b1b', fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{exp.citizen_explanation}</p>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       ))}

@@ -278,6 +278,7 @@ def get_all_budgets(db: Session = Depends(get_db)):
             "year": b.year,
             "amount": b.amount,
             "description": b.description,
+            "county": b.county,
             "citizen_explanation": b.citizen_explanation
         })
     return result
