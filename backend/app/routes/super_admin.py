@@ -15,6 +15,7 @@ from app.models.audit_log import AuditLog
 from app.core.security import hash_password, verify_token
 from app.db.session import SessionLocal
 from app.services.budget_ai_service import generate_citizen_explanation, generate_expenditure_explanation
+from app.services.email_service import send_account_update_email
 
 router = APIRouter(prefix="/super-admin", tags=["super-admin"])
 
@@ -92,17 +93,28 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    changes = {}
     if user_update.name:
         user.name = user_update.name
     if user_update.email:
+        changes['email'] = user_update.email
         user.email = user_update.email
     if user_update.role:
+        changes['role'] = user_update.role
         user.role = UserRole[user_update.role]
     if user_update.is_active is not None:
+        changes['status'] = 'active' if user_update.is_active else 'inactive'
         user.is_active = user_update.is_active
     
     db.commit()
     log_action(db, 1, "update_user", "user", user_id, f"Updated user: {user.email}")
+    
+    # Send email notification
+    if changes and user.email:
+        try:
+            send_account_update_email(user.email, user.name, changes)
+        except Exception as e:
+            print(f"Failed to send account update email: {e}")
     
     return {"message": "User updated successfully"}
 

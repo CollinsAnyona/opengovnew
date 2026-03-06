@@ -174,17 +174,30 @@ def create_reply(post_id: int, reply: ForumReplyCreate, db: Session = Depends(ge
     post_author = db.query(User).filter(User.id == post.user_id).first()
     replier = db.query(User).filter(User.id == db_reply.user_id).first()
     
+    print(f"\n=== EMAIL DEBUG ===")
+    print(f"Post author: {post_author.name if post_author else 'None'} (ID: {post.user_id})")
+    print(f"Post author email: {post_author.email if post_author else 'None'}")
+    print(f"Replier: {replier.name if replier else 'None'} (ID: {db_reply.user_id})")
+    print(f"Same person? {post_author.id == db_reply.user_id if post_author else 'N/A'}")
+    
     if post_author and post_author.email and post_author.id != db_reply.user_id:
+        print(f"Attempting to send email to {post_author.email}...")
         try:
-            send_forum_reply_email(
+            result = send_forum_reply_email(
                 user_email=post_author.email,
                 user_name=post_author.name,
                 post_title=post.title,
                 replier_name=replier.name if replier else "Someone",
                 reply_preview=reply.content
             )
+            print(f"Email send result: {result}")
         except Exception as e:
             print(f"Failed to send forum reply email: {e}")
+            import traceback
+            traceback.print_exc()
+    else:
+        print(f"Email NOT sent - Reason: post_author={bool(post_author)}, has_email={bool(post_author.email if post_author else False)}, different_user={post_author.id != db_reply.user_id if post_author else False}")
+    print(f"=== END EMAIL DEBUG ===\n")
     
     user = db.query(User).filter(User.id == db_reply.user_id).first()
     
@@ -316,6 +329,37 @@ def delete_reply(post_id: int, reply_id: int, db: Session = Depends(get_db), cur
     
     return {"message": "Reply deleted successfully"}
 
+
+@router.delete("/admin/posts/{post_id}")
+def admin_delete_post(post_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    """Admin can delete any post"""
+    if current_user.get("role") not in ["admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    post = db.query(ForumPost).filter(ForumPost.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    db.query(ForumReply).filter(ForumReply.post_id == post_id).delete()
+    db.delete(post)
+    db.commit()
+    
+    return {"message": "Post deleted successfully"}
+
+@router.delete("/admin/replies/{reply_id}")
+def admin_delete_reply(reply_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    """Admin can delete any reply"""
+    if current_user.get("role") not in ["admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    reply = db.query(ForumReply).filter(ForumReply.id == reply_id).first()
+    if not reply:
+        raise HTTPException(status_code=404, detail="Reply not found")
+    
+    db.delete(reply)
+    db.commit()
+    
+    return {"message": "Reply deleted successfully"}
 
 # Admin endpoints for moderation
 @router.get("/admin/flagged-posts")

@@ -8,8 +8,11 @@ A modern web application for transparent government financial management and cit
 - **AI-Powered Insights**: Automated analysis of spending patterns and citizen feedback
 - **Citizen Feedback**: Submit and track feedback on government services
 - **Admin Panel**: Moderate citizen submissions with AI assistance
+- **Content Moderation**: AI-powered forum moderation with email notifications
 - **Super Admin**: Complete system management and oversight
-- **Forum**: Community discussions on governance issues
+- **Forum**: Community discussions on governance issues with edit/delete functionality
+- **Email Notifications**: Automated emails for forum replies, moderation actions, and password resets
+- **User Management**: Promote users, reset passwords, activate/deactivate accounts
 
 ## Tech Stack
 
@@ -34,6 +37,12 @@ A modern web application for transparent government financial management and cit
 cd backend
 pip install -r requirements.txt
 python create_super_admin.py
+
+# Configure email (optional but recommended)
+# Copy .env.example to .env and add your SMTP credentials
+cp .env.example .env
+# Edit .env file with your email settings (see EMAIL_SETUP.md)
+
 uvicorn main:app --reload
 ```
 

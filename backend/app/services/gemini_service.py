@@ -60,6 +60,7 @@ Respond in JSON format:
 }}"""
             
             response = model.models.generate_content(
+                model='gemini-2.0-flash-exp',
                 contents=[prompt]
             )
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))
@@ -115,6 +116,7 @@ Provide analysis in JSON format:
 }}"""
             
             response = model.models.generate_content(
+                model='gemini-2.0-flash-exp',
                 contents=[prompt]
             )
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))
@@ -167,6 +169,7 @@ Provide a warm, conversational analysis that:
 Tone: Friendly, transparent, empowering. Use Kenyan Shillings (KSh) format. Keep under 200 words."""
             
             response = model.models.generate_content(
+                model='gemini-2.0-flash-exp',
                 contents=[prompt]
             )
             return response.text
@@ -198,6 +201,7 @@ Provide:
 Keep it under 100 words, friendly tone, avoid jargon."""
             
             response = model.models.generate_content(
+                model='gemini-2.0-flash-exp',
                 contents=[prompt]
             )
             return response.text
@@ -236,6 +240,7 @@ Respond in JSON:
 }}"""
             
             response = model.models.generate_content(
+                model='gemini-2.0-flash-exp',
                 contents=[prompt]
             )
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))

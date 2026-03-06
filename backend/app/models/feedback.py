@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
 from app.db.base import Base
+from app.models import user, sector  # Import to ensure models are registered
 
 class FeedbackStatus(enum.Enum):
     submitted = "submitted"

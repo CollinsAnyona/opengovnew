@@ -6,6 +6,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Feedback from './pages/Feedback';
 import Admin from './pages/Admin';
+import Moderation from './pages/Moderation';
+import FeedbackManagement from './pages/FeedbackManagement';
 import SuperAdmin from './pages/SuperAdmin';
 import UserManagement from './pages/UserManagement';
 import Expenditures from './pages/Expenditures';
@@ -110,6 +112,26 @@ function App() {
             <AdminRoute>
               <Layout>
                 <UserManagement />
+              </Layout>
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/moderation" 
+          element={
+            <AdminRoute>
+              <Layout>
+                <Moderation />
+              </Layout>
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/feedback-management" 
+          element={
+            <AdminRoute>
+              <Layout>
+                <FeedbackManagement />
               </Layout>
             </AdminRoute>
           } 

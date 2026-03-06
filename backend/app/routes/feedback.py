@@ -9,7 +9,7 @@ from app.models.ai_analysis import AIAnalysis
 from app.models.user import UserRole
 from app.core.security import verify_token
 from app.db.session import SessionLocal
-from app.services.email_service import send_feedback_status_email
+from app.services.email_service import send_feedback_status_email, send_feedback_response_email
 from app.models.user import User
 from app.services.gemini_service import GeminiAIService
 from app.models.budget import Budget
@@ -20,6 +20,9 @@ router = APIRouter(prefix="/feedback", tags=["feedback"])
 
 class FeedbackStatusUpdate(BaseModel):
     status: str
+
+class FeedbackResponse(BaseModel):
+    response: str
 
 def get_db():
     db = SessionLocal()
@@ -176,3 +179,32 @@ def update_feedback_status(
             print(f"Failed to send email notification: {e}")
     
     return feedback
+
+@router.post("/{feedback_id}/respond")
+def respond_to_feedback(
+    feedback_id: int,
+    response_data: FeedbackResponse,
+    db: Session = Depends(get_db),
+    admin_user: dict = Depends(require_admin)
+):
+    """Admin responds to feedback and marks it as resolved"""
+    feedback = db.query(Feedback).filter(Feedback.id == feedback_id).first()
+    if not feedback:
+        raise HTTPException(status_code=404, detail="Feedback not found")
+    
+    feedback.status = FeedbackStatus.approved
+    db.commit()
+    
+    user = db.query(User).filter(User.id == feedback.user_id).first()
+    if user and user.email:
+        try:
+            send_feedback_response_email(
+                user_email=user.email,
+                user_name=user.name,
+                feedback_message=feedback.message,
+                admin_response=response_data.response
+            )
+        except Exception as e:
+            print(f"Failed to send response email: {e}")
+    
+    return {"message": "Response sent and feedback marked as resolved"}

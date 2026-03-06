@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
 import { colors } from '../theme/colors';
+import { getUserRole } from '../auth/authUtils';
 
 function Forum() {
   const [posts, setPosts] = useState([]);
@@ -12,6 +13,8 @@ function Forum() {
   const [newPost, setNewPost] = useState({ title: '', content: '', category: 'general', sector_id: null });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const userRole = getUserRole();
+  const isAdmin = userRole === 'admin' || userRole === 'super_admin';
 
   useEffect(() => {
     fetchSectors();
@@ -54,6 +57,18 @@ function Forum() {
       fetchPosts();
     } catch (error) {
       console.error('Failed to create post:', error);
+    }
+  };
+
+  const handleDeletePost = async (postId, e) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    try {
+      await apiClient.delete(`/forum/admin/posts/${postId}`);
+      fetchPosts();
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      alert('Failed to delete post');
     }
   };
 
@@ -293,6 +308,17 @@ function Forum() {
                   <span>{formatDateTime(post.created_at)}</span>
                   <span>•</span>
                   <span style={{ color: colors.primary, fontWeight: '600' }}>{post.reply_count} {post.reply_count === 1 ? 'reply' : 'replies'}</span>
+                  {isAdmin && (
+                    <>
+                      <span>•</span>
+                      <button
+                        onClick={(e) => handleDeletePost(post.id, e)}
+                        style={{ padding: '4px 12px', background: colors.danger, color: colors.white, border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
