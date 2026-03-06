@@ -102,12 +102,20 @@ def create_post(post: ForumPostCreate, db: Session = Depends(get_db)):
     is_flagged = title_moderation['is_flagged'] or content_moderation['is_flagged']
     flagged_reason = title_moderation.get('reason') or content_moderation.get('reason')
     
+    # Validate sector_id if provided
+    sector_id = post.sector_id
+    if sector_id:
+        from app.models.sector import Sector
+        sector_exists = db.query(Sector).filter(Sector.id == sector_id).first()
+        if not sector_exists:
+            sector_id = None
+    
     db_post = ForumPost(
         user_id=1,
         title=post.title,
         content=post.content,
         category=post.category,
-        sector_id=post.sector_id,
+        sector_id=sector_id,
         is_flagged=is_flagged,
         flagged_reason=flagged_reason,
         moderation_status='pending' if is_flagged else 'approved'

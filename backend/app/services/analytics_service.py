@@ -45,7 +45,7 @@ class AnalyticsService:
         # Group by year
         yearly_distribution = {}
         for budget in budgets:
-            year = budget.year
+            year = str(budget.year)  # Convert to string for schema compatibility
             yearly_distribution[year] = yearly_distribution.get(year, 0) + budget.amount
         
         # Calculate growth rate
@@ -59,7 +59,7 @@ class AnalyticsService:
             if previous_amount > 0:
                 growth_rate = ((current_amount - previous_amount) / previous_amount) * 100
         
-        largest_year = max(yearly_distribution, key=yearly_distribution.get) if yearly_distribution else None
+        largest_year = str(max(yearly_distribution, key=yearly_distribution.get)) if yearly_distribution else None
         
         return {
             "sector": sector_name,

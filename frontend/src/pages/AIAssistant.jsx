@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import apiClient from '../api/apiClient';
 import { Bot, Send, Lightbulb, TrendingUp, Target } from 'lucide-react';
+import '../styles/responsive.css';
 
 function AIAssistant() {
   const [messages, setMessages] = useState([]);
@@ -107,20 +108,20 @@ function AIAssistant() {
     <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: '40px' }}>
       {/* Header */}
       <div style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', marginBottom: '30px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '30px 40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: 'clamp(20px, 4vw, 30px) clamp(20px, 4vw, 40px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
             <Bot size={32} color="#0066cc" strokeWidth={2} />
-            <h1 style={{ color: '#1a1a1a', fontSize: '28px', fontWeight: '700', margin: '0', flex: 1 }}>
+            <h1 style={{ color: '#1a1a1a', fontSize: 'clamp(20px, 5vw, 28px)', fontWeight: '700', margin: '0', flex: 1 }}>
               AI Budget Assistant
             </h1>
             <button
               onClick={clearChat}
               style={{
-                padding: '8px 16px',
+                padding: 'clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px)',
                 background: '#f3f4f6',
                 border: '1px solid #d1d5db',
                 borderRadius: '6px',
-                fontSize: '12px',
+                fontSize: 'clamp(10px, 2.5vw, 12px)',
                 color: '#666',
                 cursor: 'pointer',
                 fontWeight: '500'
@@ -129,19 +130,19 @@ function AIAssistant() {
               Clear Chat
             </button>
           </div>
-          <p style={{ color: '#666', fontSize: '15px', margin: '0' }}>
+          <p style={{ color: '#666', fontSize: 'clamp(12px, 3vw, 15px)', margin: '0' }}>
             Ask me anything about government budgets, spending, and citizen feedback. I have real-time data!
           </p>
         </div>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 40px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 clamp(20px, 4vw, 40px)' }}>
         {/* Chat Container */}
         <div style={{ 
           background: '#ffffff', 
           border: '1px solid #e5e7eb', 
-          borderRadius: '12px', 
-          height: '600px',
+          borderRadius: 'clamp(8px, 2vw, 12px)', 
+          height: 'clamp(400px, 60vh, 600px)',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
@@ -294,12 +295,7 @@ function AIAssistant() {
         </div>
 
         {/* Info Cards */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '16px',
-          marginTop: '24px'
-        }}>
+        <div className="grid-responsive" style={{ marginTop: '24px' }}>
           <div style={{ 
             background: '#ffffff', 
             border: '1px solid #e5e7eb', 

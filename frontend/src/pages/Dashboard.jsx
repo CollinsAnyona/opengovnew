@@ -221,17 +221,17 @@ function Dashboard() {
     <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: '40px' }}>
       {/* Header */}
       <div style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', marginBottom: '30px' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '30px 40px' }}>
-          <h1 style={{ color: '#1a1a1a', fontSize: '28px', fontWeight: '700', margin: '0 0 8px 0' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(20px, 4vw, 30px) clamp(20px, 4vw, 40px)' }}>
+          <h1 style={{ color: '#1a1a1a', fontSize: 'clamp(20px, 5vw, 28px)', fontWeight: '700', margin: '0 0 8px 0' }}>
             Budget Dashboard
           </h1>
-          <p style={{ color: '#666', fontSize: '15px', margin: '0' }}>
+          <p style={{ color: '#666', fontSize: 'clamp(13px, 3vw, 15px)', margin: '0' }}>
             Track government spending and citizen feedback in real-time
           </p>
         </div>
       </div>
 
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(20px, 4vw, 40px)' }}>
         {/* Sector Selector */}
         <div style={{ marginBottom: '30px' }}>
           <label style={{ display: 'block', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>

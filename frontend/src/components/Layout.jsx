@@ -38,10 +38,17 @@ const Layout = ({ children }) => {
         borderBottom: '3px solid #0066cc',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
       }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '75px' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 40px)' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            minHeight: '75px',
+            flexWrap: 'wrap',
+            gap: 'clamp(8px, 2vw, 16px)'
+          }}>
             {/* Logo Section */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 3vw, 40px)', minWidth: '200px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ 
                   width: '5px', 
@@ -51,7 +58,7 @@ const Layout = ({ children }) => {
                 }}></div>
                 <div>
                   <h1 style={{ 
-                    fontSize: '20px', 
+                    fontSize: 'clamp(16px, 4vw, 20px)', 
                     fontWeight: '700', 
                     color: '#1a1a1a',
                     letterSpacing: '0.3px',
@@ -61,7 +68,7 @@ const Layout = ({ children }) => {
                     OpenGov
                   </h1>
                   <p style={{ 
-                    fontSize: '12px', 
+                    fontSize: 'clamp(9px, 2vw, 12px)', 
                     color: '#666',
                     margin: '2px 0 0 0',
                     fontWeight: '500'
@@ -71,19 +78,24 @@ const Layout = ({ children }) => {
                 </div>
               </div>
               
-              {/* Navigation Links */}
-              <div style={{ display: 'flex', gap: '6px' }}>
+              {/* Navigation Links - Hidden on mobile */}
+              <div style={{ 
+                display: 'flex', 
+                gap: 'clamp(4px, 1vw, 6px)',
+                flexWrap: 'wrap'
+              }} className="hide-mobile">
                 <Link 
                   to="/dashboard" 
                   style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    fontSize: '15px',
+                    padding: 'clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 20px)',
+                    borderRadius: 'clamp(4px, 1vw, 8px)',
+                    fontSize: 'clamp(11px, 2.2vw, 15px)',
                     fontWeight: '600',
                     textDecoration: 'none',
                     transition: 'all 0.2s',
                     background: isActive('/dashboard') ? '#0066cc' : 'transparent',
-                    color: isActive('/dashboard') ? '#ffffff' : '#333333'
+                    color: isActive('/dashboard') ? '#ffffff' : '#333333',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   Dashboard
@@ -91,14 +103,15 @@ const Layout = ({ children }) => {
                 <Link 
                   to="/expenditures" 
                   style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    fontSize: '15px',
+                    padding: 'clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 20px)',
+                    borderRadius: 'clamp(4px, 1vw, 8px)',
+                    fontSize: 'clamp(11px, 2.2vw, 15px)',
                     fontWeight: '600',
                     textDecoration: 'none',
                     transition: 'all 0.2s',
                     background: isActive('/expenditures') ? '#0066cc' : 'transparent',
-                    color: isActive('/expenditures') ? '#ffffff' : '#333333'
+                    color: isActive('/expenditures') ? '#ffffff' : '#333333',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   Expenditures
@@ -106,17 +119,15 @@ const Layout = ({ children }) => {
                 <Link 
                   to="/ai-assistant" 
                   style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    fontSize: '15px',
+                    padding: 'clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 20px)',
+                    borderRadius: 'clamp(4px, 1vw, 8px)',
+                    fontSize: 'clamp(11px, 2.2vw, 15px)',
                     fontWeight: '600',
                     textDecoration: 'none',
                     transition: 'all 0.2s',
                     background: isActive('/ai-assistant') ? '#059669' : 'transparent',
                     color: isActive('/ai-assistant') ? '#ffffff' : '#333333',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   AI Assistant
@@ -124,14 +135,15 @@ const Layout = ({ children }) => {
                 <Link 
                   to="/forum" 
                   style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    fontSize: '15px',
+                    padding: 'clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 20px)',
+                    borderRadius: 'clamp(4px, 1vw, 8px)',
+                    fontSize: 'clamp(11px, 2.2vw, 15px)',
                     fontWeight: '600',
                     textDecoration: 'none',
                     transition: 'all 0.2s',
                     background: isActive('/forum') || location.pathname.startsWith('/forum/') ? '#0066cc' : 'transparent',
-                    color: isActive('/forum') || location.pathname.startsWith('/forum/') ? '#ffffff' : '#333333'
+                    color: isActive('/forum') || location.pathname.startsWith('/forum/') ? '#ffffff' : '#333333',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   Forum
@@ -139,14 +151,15 @@ const Layout = ({ children }) => {
                 <Link 
                   to="/feedback" 
                   style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    fontSize: '15px',
+                    padding: 'clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 20px)',
+                    borderRadius: 'clamp(4px, 1vw, 8px)',
+                    fontSize: 'clamp(11px, 2.2vw, 15px)',
                     fontWeight: '600',
                     textDecoration: 'none',
                     transition: 'all 0.2s',
                     background: isActive('/feedback') ? '#0066cc' : 'transparent',
-                    color: isActive('/feedback') ? '#ffffff' : '#333333'
+                    color: isActive('/feedback') ? '#ffffff' : '#333333',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   Feedback
@@ -155,14 +168,15 @@ const Layout = ({ children }) => {
                   <Link 
                     to="/admin" 
                     style={{
-                      padding: '10px 20px',
-                      borderRadius: '8px',
-                      fontSize: '15px',
+                      padding: 'clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 20px)',
+                      borderRadius: 'clamp(4px, 1vw, 8px)',
+                      fontSize: 'clamp(11px, 2.2vw, 15px)',
                       fontWeight: '600',
                       textDecoration: 'none',
                       transition: 'all 0.2s',
                       background: isActive('/admin') ? '#0066cc' : 'transparent',
-                      color: isActive('/admin') ? '#ffffff' : '#333333'
+                      color: isActive('/admin') ? '#ffffff' : '#333333',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     Admin
@@ -172,15 +186,16 @@ const Layout = ({ children }) => {
                   <Link 
                     to="/super-admin" 
                     style={{
-                      padding: '10px 20px',
-                      borderRadius: '8px',
-                      fontSize: '15px',
+                      padding: 'clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 20px)',
+                      borderRadius: 'clamp(4px, 1vw, 8px)',
+                      fontSize: 'clamp(11px, 2.2vw, 15px)',
                       fontWeight: '600',
                       textDecoration: 'none',
                       transition: 'all 0.2s',
                       background: isActive('/super-admin') ? '#7c3aed' : 'transparent',
                       color: isActive('/super-admin') ? '#ffffff' : '#333333',
-                      border: isActive('/super-admin') ? 'none' : '1px solid #7c3aed'
+                      border: isActive('/super-admin') ? 'none' : '1px solid #7c3aed',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     Super Admin
@@ -190,19 +205,19 @@ const Layout = ({ children }) => {
             </div>
 
             {/* User Section */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
               {userName && (
                 <div style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '10px',
-                  padding: '8px 16px',
+                  gap: 'clamp(6px, 1.5vw, 10px)',
+                  padding: 'clamp(4px, 1vw, 8px) clamp(8px, 2vw, 16px)',
                   background: '#f0f4f8',
-                  borderRadius: '8px'
+                  borderRadius: 'clamp(4px, 1vw, 8px)'
                 }}>
                   <div style={{
-                    width: '36px',
-                    height: '36px',
+                    width: 'clamp(28px, 6vw, 36px)',
+                    height: 'clamp(28px, 6vw, 36px)',
                     borderRadius: '50%',
                     background: '#0066cc',
                     color: '#ffffff',
@@ -210,11 +225,16 @@ const Layout = ({ children }) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontWeight: '700',
-                    fontSize: '16px'
+                    fontSize: 'clamp(12px, 3vw, 16px)'
                   }}>
                     {userName.charAt(0).toUpperCase()}
                   </div>
-                  <span style={{ fontSize: '15px', fontWeight: '600', color: '#1a1a1a' }}>
+                  <span style={{ 
+                    fontSize: 'clamp(12px, 2.5vw, 15px)', 
+                    fontWeight: '600', 
+                    color: '#1a1a1a',
+                    display: window.innerWidth < 480 ? 'none' : 'inline'
+                  }}>
                     {userName}
                   </span>
                 </div>
@@ -222,13 +242,13 @@ const Layout = ({ children }) => {
               <button
                 onClick={handleLogout}
                 style={{
-                  padding: '10px 20px',
-                  fontSize: '15px',
+                  padding: 'clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 20px)',
+                  fontSize: 'clamp(11px, 2.5vw, 15px)',
                   fontWeight: '600',
                   color: '#dc2626',
                   background: '#ffffff',
                   border: '2px solid #dc2626',
-                  borderRadius: '8px',
+                  borderRadius: 'clamp(4px, 1vw, 8px)',
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
@@ -250,6 +270,11 @@ const Layout = ({ children }) => {
       <main>
         {children}
       </main>
+      <style>{`
+        @media (max-width: 768px) {
+          .hide-mobile { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 };
