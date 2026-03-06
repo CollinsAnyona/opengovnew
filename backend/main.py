@@ -13,6 +13,7 @@ from app.routes.super_admin import router as super_admin_router
 from app.db.session import engine
 from app.db.base import Base
 from app.models import user, sector, budget, expenditure, feedback, forum_post, forum_reply, user_notification, audit_log
+import os
 
 Base.metadata.create_all(bind=engine)
 
@@ -20,7 +21,12 @@ app = FastAPI(title="OpenGov")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:5174", 
+        "http://127.0.0.1:5173",
+        os.getenv("FRONTEND_URL", "*")
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -231,20 +231,20 @@ const Layout = ({ children }) => {
                   padding: 'clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 20px)',
                   fontSize: 'clamp(11px, 2.5vw, 15px)',
                   fontWeight: '600',
-                  color: '#dc2626',
-                  background: '#ffffff',
-                  border: '2px solid #dc2626',
+                  color: '#ffffff',
+                  background: '#0066cc',
+                  border: '2px solid #0066cc',
                   borderRadius: 'clamp(4px, 1vw, 8px)',
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
                 onMouseOver={(e) => {
-                  e.target.style.background = '#dc2626';
-                  e.target.style.color = '#ffffff';
+                  e.target.style.background = '#0052a3';
+                  e.target.style.border = '2px solid #0052a3';
                 }}
                 onMouseOut={(e) => {
-                  e.target.style.background = '#ffffff';
-                  e.target.style.color = '#dc2626';
+                  e.target.style.background = '#0066cc';
+                  e.target.style.border = '2px solid #0066cc';
                 }}
               >
                 Logout
