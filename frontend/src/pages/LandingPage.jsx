@@ -444,7 +444,7 @@ function LandingPage() {
             Empowering Kenyan citizens through transparent governance
           </p>
           <p style={{ opacity: 0.3, fontSize: '13px' }}>
-            © 2024 OpenGov Kenya. Built for the people.
+            © 2026 OpenGov Kenya. Built for the people.
           </p>
         </div>
       </footer>
