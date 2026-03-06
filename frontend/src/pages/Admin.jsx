@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import apiClient from '../api/apiClient';
+import { colors } from '../theme/colors';
 
 const Admin = () => {
   const [feedback, setFeedback] = useState([]);
   const [aiAnalysis, setAiAnalysis] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [expenditures, setExpenditures] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -18,15 +19,15 @@ const Admin = () => {
     setLoading(true);
     try {
       const [feedbackRes, analysisRes, budgetRes, expRes] = await Promise.all([
-        apiClient.get('/feedback'),
-        apiClient.get('/ai/analysis'),
-        apiClient.get('/budgets'),
-        apiClient.get('/expenditures')
+        apiClient.get('/feedback').catch(() => ({ data: [] })),
+        apiClient.get('/ai/analysis').catch(() => ({ data: [] })),
+        apiClient.get('/budgets').catch(() => ({ data: [] })),
+        apiClient.get('/expenditures').catch(() => ({ data: [] }))
       ]);
-      setFeedback(feedbackRes.data);
-      setAiAnalysis(analysisRes.data);
-      setBudgets(budgetRes.data);
-      setExpenditures(expRes.data);
+      setFeedback(feedbackRes.data || []);
+      setAiAnalysis(analysisRes.data || []);
+      setBudgets(budgetRes.data || []);
+      setExpenditures(expRes.data || []);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to fetch data');
     } finally {
@@ -60,26 +61,61 @@ const Admin = () => {
     }
   };
 
-  if (loading) return <div className="text-center py-8 text-gray-600">Loading...</div>;
-  if (error) return <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">{error}</div>;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: '48px', height: '48px', border: '4px solid #e5e7eb', borderTop: `4px solid ${colors.primary}`, borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}></div>
+          <p style={{ color: colors.gray, fontSize: '16px' }}>Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
+          <p style={{ color: colors.danger, fontSize: '16px', marginBottom: '16px' }}>{error}</p>
+          <button 
+            onClick={fetchData}
+            style={{ background: colors.primary, color: '#ffffff', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  const totalBudget = budgets.reduce((sum, b) => sum + b.amount, 0);
-  const totalSpent = expenditures.reduce((sum, e) => sum + e.amount, 0);
+  const totalBudget = budgets.reduce((sum, b) => sum + (b.amount || 0), 0);
+  const totalSpent = expenditures.reduce((sum, e) => sum + (e.amount || 0), 0);
   const utilizationRate = totalBudget > 0 ? ((totalSpent / totalBudget) * 100).toFixed(1) : 0;
   const flaggedCount = feedback.filter(f => f.status === 'flagged').length;
   const pendingCount = feedback.filter(f => f.status === 'submitted').length;
   const escalatedCount = feedback.filter(f => f.status === 'escalated').length;
 
   const feedbackByStatus = [
-    { name: 'Submitted', value: feedback.filter(f => f.status === 'submitted').length, color: '#0066cc' },
-    { name: 'Under Review', value: feedback.filter(f => f.status === 'under_review').length, color: '#f59e0b' },
-    { name: 'Approved', value: feedback.filter(f => f.status === 'approved').length, color: '#059669' },
-    { name: 'Flagged', value: feedback.filter(f => f.status === 'flagged').length, color: '#dc2626' },
+    { name: 'Submitted', value: feedback.filter(f => f.status === 'submitted').length, color: colors.primary },
+    { name: 'Under Review', value: feedback.filter(f => f.status === 'under_review').length, color: colors.warning },
+    { name: 'Approved', value: feedback.filter(f => f.status === 'approved').length, color: colors.success },
+    { name: 'Flagged', value: feedback.filter(f => f.status === 'flagged').length, color: colors.danger },
     { name: 'Escalated', value: feedback.filter(f => f.status === 'escalated').length, color: '#991b1b' }
   ].filter(item => item.value > 0);
 
   return (
-    <div>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 30px 40px' }}>
+      {/* Header Bar */}
+      <div style={{ background: colors.primary, color: '#ffffff', padding: '20px 30px', margin: '0 -30px 30px', borderRadius: '0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h1 style={{ fontSize: '28px', fontWeight: '700', margin: '0 0 4px 0' }}>Admin Panel</h1>
+            <p style={{ fontSize: '14px', margin: '0', opacity: '0.95' }}>Review AI-mediated citizen submissions and analytics</p>
+          </div>
+          <div style={{ fontSize: '13px', opacity: '0.9' }}>OpenGov Kenya</div>
+        </div>
+      </div>
+
       {/* Admin AI Analytics Dashboard */}
       {totalBudget > 0 && (
         <div style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '2px solid #fbbf24', borderRadius: '12px', padding: '28px', marginBottom: '30px', boxShadow: '0 2px 8px rgba(251, 191, 36, 0.2)' }}>
@@ -125,8 +161,8 @@ const Admin = () => {
           {/* Admin Action Items */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '20px' }}>
             <div style={{ background: '#ffffff', borderRadius: '8px', padding: '20px', border: '1px solid #fde68a' }}>
-              <div style={{ color: '#dc2626', fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ color: colors.danger, fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.danger} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                   <line x1="12" y1="9" x2="12" y2="13"></line>
                   <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -143,8 +179,8 @@ const Admin = () => {
             </div>
 
             <div style={{ background: '#ffffff', borderRadius: '8px', padding: '20px', border: '1px solid #fde68a' }}>
-              <div style={{ color: '#0066cc', fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0066cc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ color: colors.info, fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.info} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 20h9"></path>
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                 </svg>
@@ -160,8 +196,8 @@ const Admin = () => {
             </div>
 
             <div style={{ background: '#ffffff', borderRadius: '8px', padding: '20px', border: '1px solid #fde68a' }}>
-              <div style={{ color: '#059669', fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ color: colors.success, fontSize: '15px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <path d="M16 12l-4-4-4 4M12 16V8"></path>
                 </svg>
@@ -170,7 +206,7 @@ const Admin = () => {
               <div style={{ color: '#666', fontSize: '14px', lineHeight: '1.9', margin: '0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <span>Budget Utilization:</span>
-                  <strong style={{ color: utilizationRate < 40 ? '#dc2626' : utilizationRate < 80 ? '#059669' : '#f59e0b' }}>{utilizationRate}%</strong>
+                  <strong style={{ color: utilizationRate < 40 ? colors.danger : utilizationRate < 80 ? colors.success : colors.warning }}>{utilizationRate}%</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <span>Citizen Submissions:</span>
@@ -178,7 +214,7 @@ const Admin = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <span>Pending Reviews:</span>
-                  <strong style={{ color: pendingCount > 10 ? '#dc2626' : '#666' }}>{pendingCount}</strong>
+                  <strong style={{ color: pendingCount > 10 ? colors.danger : colors.darkGray }}>{pendingCount}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Response Rate:</span>
@@ -209,8 +245,8 @@ const Admin = () => {
       )}
 
       {/* Feedback Status Chart */}
-      <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', marginBottom: '30px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>
+      <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '28px', marginBottom: '30px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>
           Citizen Feedback Status Overview
         </h3>
         {feedbackByStatus.length > 0 ? (
@@ -230,90 +266,71 @@ const Admin = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
+              <Tooltip contentStyle={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#999' }}>No feedback data available</div>
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: colors.lightGray }}>No feedback data available</div>
         )}
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Administrative Oversight Panel
-        </h1>
-        <p className="text-gray-600">
-          Review AI-mediated citizen submissions.
-        </p>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      {/* Feedback Table */}
+      <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '28px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>Feedback Submissions</h3>
         {feedback.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">No feedback submissions found</div>
+          <div style={{ padding: '40px 20px', textAlign: 'center', color: colors.gray }}>No feedback submissions found</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Feedback Message
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Sector
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    AI Summary
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Confidence
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Action
-                  </th>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{ background: colors.background }}>
+                <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', color: colors.gray, fontWeight: '600', textTransform: 'uppercase' }}>Message</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', color: colors.gray, fontWeight: '600', textTransform: 'uppercase' }}>Sector</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', color: colors.gray, fontWeight: '600', textTransform: 'uppercase' }}>AI Summary</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', color: colors.gray, fontWeight: '600', textTransform: 'uppercase' }}>Confidence</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', color: colors.gray, fontWeight: '600', textTransform: 'uppercase' }}>Status</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', color: colors.gray, fontWeight: '600', textTransform: 'uppercase' }}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {feedback.map((item) => {
                   const analysis = getAnalysisForFeedback(item.id);
                   return (
-                    <tr key={item.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                    <tr key={item.id} style={{ borderBottom: `1px solid ${colors.border}`, transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = colors.background} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.dark, maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {item.message}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.darkGray }}>
                         {item.sector_id}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.darkGray, maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {analysis ? analysis.summary : 'Not analyzed'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.darkGray }}>
                         {analysis ? analysis.confidence_score : 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${getStatusBadge(item.status)}`}>
+                      <td style={{ padding: '16px' }}>
+                        <span style={{ padding: '4px 12px', fontSize: '12px', fontWeight: '500', borderRadius: '12px' }} className={getStatusBadge(item.status)}>
                           {item.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                      <td style={{ padding: '16px', fontSize: '14px' }}>
                         <button 
                           onClick={() => updateStatus(item.id, 'under_review')}
-                          className="text-blue-700 hover:text-blue-800 font-medium"
+                          style={{ color: colors.info, background: 'none', border: 'none', fontWeight: '500', marginRight: '12px', cursor: 'pointer' }}
                         >
-                          Mark Reviewed
+                          Review
                         </button>
                         <button 
                           onClick={() => updateStatus(item.id, 'approved')}
-                          className="text-green-600 hover:text-green-700 font-medium"
+                          style={{ color: colors.success, background: 'none', border: 'none', fontWeight: '500', marginRight: '12px', cursor: 'pointer' }}
                         >
                           Approve
                         </button>
                         <button 
                           onClick={() => updateStatus(item.id, 'escalated')}
-                          className="text-red-600 hover:text-red-700 font-medium"
+                          style={{ color: colors.danger, background: 'none', border: 'none', fontWeight: '500', cursor: 'pointer' }}
                         >
                           Escalate
                         </button>

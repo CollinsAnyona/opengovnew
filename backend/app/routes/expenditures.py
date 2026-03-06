@@ -27,12 +27,17 @@ def require_admin(current_user: dict = Depends(get_current_user)):
 def get_expenditures(db: Session = Depends(get_db)):
     from app.models.budget import Budget
     from app.models.sector import Sector
+    from sqlalchemy.orm import joinedload
     
-    expenditures = db.query(Expenditure).all()
+    expenditures = db.query(Expenditure).join(Budget).join(Sector).all()
+    
+    budget_map = {b.id: b for b in db.query(Budget).all()}
+    sector_map = {s.id: s for s in db.query(Sector).all()}
+    
     result = []
     for exp in expenditures:
-        budget = db.query(Budget).filter(Budget.id == exp.budget_id).first()
-        sector = db.query(Sector).filter(Sector.id == budget.sector_id).first() if budget else None
+        budget = budget_map.get(exp.budget_id)
+        sector = sector_map.get(budget.sector_id) if budget else None
         result.append({
             "id": exp.id,
             "budget_id": exp.budget_id,

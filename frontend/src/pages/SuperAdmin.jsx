@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../api/apiClient';
+import { colors } from '../theme/colors';
 
 function SuperAdmin() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -241,40 +242,37 @@ function SuperAdmin() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: '40px' }}>
+    <div style={{ minHeight: '100vh', background: colors.background, paddingBottom: '40px' }}>
       {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', borderBottom: '3px solid #6d28d9', marginBottom: '30px', boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '30px 40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-              <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
-            </svg>
+      <div style={{ background: colors.primary, marginBottom: '30px', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px 30px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h1 style={{ color: '#ffffff', fontSize: '28px', fontWeight: '700', margin: '0' }}>
+              <h1 style={{ color: colors.white, fontSize: '28px', fontWeight: '700', margin: '0 0 4px 0' }}>
                 Super Admin Control Panel
               </h1>
-              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', margin: '5px 0 0 0' }}>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px', margin: '0' }}>
                 System-wide management and oversight
               </p>
             </div>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.9)' }}>OpenGov Kenya</div>
           </div>
         </div>
       </div>
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px' }}>
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '30px', borderBottom: '2px solid #e5e7eb', paddingBottom: '0' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '30px', borderBottom: `2px solid ${colors.border}`, paddingBottom: '0' }}>
           {['overview', 'users', 'sectors', 'budgets', 'expenditures', 'moderation', 'audit'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
                 padding: '12px 24px',
-                background: activeTab === tab ? '#7c3aed' : 'transparent',
-                color: activeTab === tab ? '#ffffff' : '#666',
+                background: activeTab === tab ? colors.primary : 'transparent',
+                color: activeTab === tab ? colors.white : colors.gray,
                 border: 'none',
-                borderBottom: activeTab === tab ? '3px solid #7c3aed' : '3px solid transparent',
+                borderBottom: activeTab === tab ? `3px solid ${colors.primary}` : '3px solid transparent',
                 fontSize: '15px',
                 fontWeight: '600',
                 cursor: 'pointer',
@@ -289,7 +287,7 @@ function SuperAdmin() {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px' }}>
-            <div style={{ display: 'inline-block', width: '50px', height: '50px', border: '4px solid #e5e7eb', borderTop: '4px solid #7c3aed', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+            <div style={{ display: 'inline-block', width: '50px', height: '50px', border: `4px solid ${colors.border}`, borderTop: `4px solid ${colors.primary}`, borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
           </div>
         ) : (
           <>
@@ -297,25 +295,25 @@ function SuperAdmin() {
             {activeTab === 'overview' && analytics && (
               <div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-                  <div style={{ background: '#ffffff', border: '2px solid #7c3aed', borderRadius: '12px', padding: '24px' }}>
-                    <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>TOTAL USERS</div>
-                    <div style={{ color: '#7c3aed', fontSize: '36px', fontWeight: '700' }}>{analytics.total_users}</div>
-                    <div style={{ color: '#999', fontSize: '13px' }}>{analytics.active_users} active</div>
+                  <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                    <div style={{ color: colors.gray, fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>TOTAL USERS</div>
+                    <div style={{ color: colors.primary, fontSize: '36px', fontWeight: '700' }}>{analytics.total_users}</div>
+                    <div style={{ color: colors.lightGray, fontSize: '13px' }}>{analytics.active_users} active</div>
                   </div>
-                  <div style={{ background: '#ffffff', border: '2px solid #0066cc', borderRadius: '12px', padding: '24px' }}>
-                    <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>TOTAL BUDGETS</div>
-                    <div style={{ color: '#0066cc', fontSize: '36px', fontWeight: '700' }}>{analytics.total_budgets}</div>
-                    <div style={{ color: '#999', fontSize: '13px' }}>KSh {analytics.total_budget_amount.toLocaleString()}</div>
+                  <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                    <div style={{ color: colors.gray, fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>TOTAL BUDGETS</div>
+                    <div style={{ color: colors.info, fontSize: '36px', fontWeight: '700' }}>{analytics.total_budgets}</div>
+                    <div style={{ color: colors.lightGray, fontSize: '13px' }}>KSh {analytics.total_budget_amount.toLocaleString()}</div>
                   </div>
-                  <div style={{ background: '#ffffff', border: '2px solid #059669', borderRadius: '12px', padding: '24px' }}>
-                    <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>CITIZEN FEEDBACK</div>
-                    <div style={{ color: '#059669', fontSize: '36px', fontWeight: '700' }}>{analytics.total_feedback}</div>
-                    <div style={{ color: '#999', fontSize: '13px' }}>Total submissions</div>
+                  <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                    <div style={{ color: colors.gray, fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>CITIZEN FEEDBACK</div>
+                    <div style={{ color: colors.success, fontSize: '36px', fontWeight: '700' }}>{analytics.total_feedback}</div>
+                    <div style={{ color: colors.lightGray, fontSize: '13px' }}>Total submissions</div>
                   </div>
-                  <div style={{ background: '#ffffff', border: '2px solid #dc2626', borderRadius: '12px', padding: '24px' }}>
-                    <div style={{ color: '#666', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>FLAGGED CONTENT</div>
-                    <div style={{ color: '#dc2626', fontSize: '36px', fontWeight: '700' }}>{analytics.flagged_posts}</div>
-                    <div style={{ color: '#999', fontSize: '13px' }}>Needs review</div>
+                  <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                    <div style={{ color: colors.gray, fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>FLAGGED CONTENT</div>
+                    <div style={{ color: colors.danger, fontSize: '36px', fontWeight: '700' }}>{analytics.flagged_posts}</div>
+                    <div style={{ color: colors.lightGray, fontSize: '13px' }}>Needs review</div>
                   </div>
                 </div>
               </div>
@@ -324,8 +322,8 @@ function SuperAdmin() {
             {/* Users Tab */}
             {activeTab === 'users' && (
               <div>
-                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', marginBottom: '24px' }}>
-                  <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
+                <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '28px', marginBottom: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
                     Create New User
                   </h3>
                   <form onSubmit={createUser} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
@@ -334,7 +332,7 @@ function SuperAdmin() {
                       placeholder="Full Name"
                       value={newUser.name}
                       onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
                     <input
@@ -342,7 +340,7 @@ function SuperAdmin() {
                       placeholder="Email"
                       value={newUser.email}
                       onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
                     <input
@@ -350,56 +348,56 @@ function SuperAdmin() {
                       placeholder="Password"
                       value={newUser.password}
                       onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
                     <select
                       value={newUser.role}
                       onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                     >
                       <option value="citizen">Citizen</option>
                       <option value="admin">Admin</option>
                       <option value="super_admin">Super Admin</option>
                     </select>
-                    <button type="submit" style={{ padding: '10px 20px', background: '#7c3aed', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                    <button type="submit" style={{ padding: '10px 20px', background: colors.primary, color: colors.white, border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                       Create User
                     </button>
                   </form>
                 </div>
 
-                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
+                <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead style={{ background: '#f9fafb' }}>
+                    <thead style={{ background: colors.background }}>
                       <tr>
-                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#666' }}>NAME</th>
-                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#666' }}>EMAIL</th>
-                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#666' }}>ROLE</th>
-                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#666' }}>STATUS</th>
-                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#666' }}>ACTIONS</th>
+                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.gray }}>NAME</th>
+                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.gray }}>EMAIL</th>
+                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.gray }}>ROLE</th>
+                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.gray }}>STATUS</th>
+                        <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.gray }}>ACTIONS</th>
                       </tr>
                     </thead>
                     <tbody>
                       {users.map(user => (
-                        <tr key={user.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                          <td style={{ padding: '16px 20px', fontSize: '14px', color: '#1a1a1a' }}>{user.name}</td>
-                          <td style={{ padding: '16px 20px', fontSize: '14px', color: '#666' }}>{user.email}</td>
+                        <tr key={user.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                          <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.dark }}>{user.name}</td>
+                          <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.gray }}>{user.email}</td>
                           <td style={{ padding: '16px 20px', fontSize: '14px' }}>
-                            <span style={{ padding: '4px 12px', background: user.role === 'super_admin' ? '#fef3c7' : user.role === 'admin' ? '#dbeafe' : '#f3f4f6', color: user.role === 'super_admin' ? '#92400e' : user.role === 'admin' ? '#1e40af' : '#666', borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>
+                            <span style={{ padding: '4px 12px', background: user.role === 'super_admin' ? 'rgba(220, 38, 38, 0.1)' : user.role === 'admin' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(2, 132, 199, 0.1)', color: user.role === 'super_admin' ? colors.danger : user.role === 'admin' ? colors.warning : colors.info, borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>
                               {user.role}
                             </span>
                           </td>
                           <td style={{ padding: '16px 20px', fontSize: '14px' }}>
-                            <span style={{ padding: '4px 12px', background: user.is_active ? '#dcfce7' : '#fee2e2', color: user.is_active ? '#166534' : '#991b1b', borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>
+                            <span style={{ padding: '4px 12px', background: user.is_active ? 'rgba(22, 163, 74, 0.1)' : 'rgba(220, 38, 38, 0.1)', color: user.is_active ? colors.success : colors.danger, borderRadius: '6px', fontSize: '12px', fontWeight: '600' }}>
                               {user.is_active ? 'Active' : 'Inactive'}
                             </span>
                           </td>
                           <td style={{ padding: '16px 20px', fontSize: '14px' }}>
-                            <button onClick={() => toggleUserStatus(user.id, user.is_active)} style={{ marginRight: '8px', padding: '6px 12px', background: '#f59e0b', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                            <button onClick={() => toggleUserStatus(user.id, user.is_active)} style={{ marginRight: '8px', padding: '6px 12px', background: colors.warning, color: colors.white, border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                               {user.is_active ? 'Suspend' : 'Activate'}
                             </button>
                             {user.role !== 'super_admin' && (
-                              <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                              <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', background: colors.danger, color: colors.white, border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                                 Delete
                               </button>
                             )}
@@ -415,8 +413,8 @@ function SuperAdmin() {
             {/* Sectors Tab */}
             {activeTab === 'sectors' && (
               <div>
-                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', marginBottom: '24px' }}>
-                  <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
+                <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '28px', marginBottom: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
                     Add New Ministry Sector
                   </h3>
                   <form onSubmit={createSector} style={{ display: 'grid', gridTemplateColumns: '2fr 3fr 1fr', gap: '16px' }}>
@@ -425,7 +423,7 @@ function SuperAdmin() {
                       placeholder="Sector Name (e.g., Agriculture)"
                       value={newSector.name}
                       onChange={(e) => setNewSector({ ...newSector, name: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
                     <input
@@ -433,9 +431,9 @@ function SuperAdmin() {
                       placeholder="Description"
                       value={newSector.description}
                       onChange={(e) => setNewSector({ ...newSector, description: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                     />
-                    <button type="submit" style={{ padding: '10px 20px', background: '#7c3aed', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                    <button type="submit" style={{ padding: '10px 20px', background: colors.primary, color: colors.white, border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                       Add Sector
                     </button>
                   </form>
@@ -443,10 +441,10 @@ function SuperAdmin() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                   {sectors.map(sector => (
-                    <div key={sector.id} style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px' }}>
-                      <h4 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0' }}>{sector.name}</h4>
-                      <p style={{ color: '#666', fontSize: '14px', margin: '0 0 16px 0' }}>{sector.description || 'No description'}</p>
-                      <button onClick={() => deleteSector(sector.id)} style={{ padding: '8px 16px', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                    <div key={sector.id} style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                      <h4 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0' }}>{sector.name}</h4>
+                      <p style={{ color: colors.gray, fontSize: '14px', margin: '0 0 16px 0' }}>{sector.description || 'No description'}</p>
+                      <button onClick={() => deleteSector(sector.id)} style={{ padding: '8px 16px', background: colors.danger, color: colors.white, border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                         Delete Sector
                       </button>
                     </div>
@@ -459,25 +457,25 @@ function SuperAdmin() {
             {activeTab === 'budgets' && (
               <div>
                 {/* Budget Upload Section */}
-                <div className="bg-white border-2 border-blue-600 rounded-xl p-6 mb-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Upload Budget Dataset</h3>
+                <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '28px', marginBottom: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>Upload Budget Dataset</h3>
                   <form onSubmit={handleFileUpload}>
-                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: colors.darkGray, marginBottom: '8px' }}>
                           Select CSV or XLSX File
                         </label>
                         <input
                           type="file"
                           accept=".csv,.xlsx"
                           onChange={(e) => setUploadFile(e.target.files[0])}
-                          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2"
+                          style={{ display: 'block', width: '100%', fontSize: '14px', color: colors.dark, border: `1px solid ${colors.border}`, borderRadius: '8px', cursor: 'pointer', background: colors.background, padding: '10px' }}
                         />
                       </div>
                       <button
                         type="submit"
                         disabled={uploading || !uploadFile}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        style={{ padding: '10px 24px', background: uploading || !uploadFile ? colors.lightGray : colors.primary, color: colors.white, fontWeight: '600', borderRadius: '8px', border: 'none', cursor: uploading || !uploadFile ? 'not-allowed' : 'pointer', fontSize: '14px', alignSelf: 'flex-start' }}
                       >
                         {uploading ? 'Uploading...' : 'Upload'}
                       </button>
@@ -485,36 +483,36 @@ function SuperAdmin() {
                   </form>
 
                   {uploadResult && (
-                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <h4 className="font-semibold text-green-900 mb-2">Upload Complete</h4>
-                      <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div style={{ marginTop: '20px', padding: '16px', background: 'rgba(22, 163, 74, 0.1)', border: `1px solid ${colors.success}`, borderRadius: '8px' }}>
+                      <h4 style={{ fontWeight: '600', color: colors.success, marginBottom: '12px', fontSize: '15px' }}>Upload Complete</h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', fontSize: '14px' }}>
                         <div>
-                          <span className="text-gray-600">Inserted:</span>
-                          <span className="ml-2 font-bold text-green-700">{uploadResult.inserted}</span>
+                          <span style={{ color: colors.gray }}>Inserted:</span>
+                          <span style={{ marginLeft: '8px', fontWeight: '700', color: colors.success }}>{uploadResult.inserted}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Updated:</span>
-                          <span className="ml-2 font-bold text-blue-700">{uploadResult.updated}</span>
+                          <span style={{ color: colors.gray }}>Updated:</span>
+                          <span style={{ marginLeft: '8px', fontWeight: '700', color: colors.info }}>{uploadResult.updated}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Skipped:</span>
-                          <span className="ml-2 font-bold text-orange-700">{uploadResult.skipped}</span>
+                          <span style={{ color: colors.gray }}>Skipped:</span>
+                          <span style={{ marginLeft: '8px', fontWeight: '700', color: colors.warning }}>{uploadResult.skipped}</span>
                         </div>
                       </div>
 
                       {uploadResult.errors && uploadResult.errors.length > 0 && (
-                        <div className="mt-3">
+                        <div style={{ marginTop: '16px' }}>
                           <button
                             onClick={() => setShowErrors(!showErrors)}
-                            className="text-sm text-red-600 hover:text-red-800 font-medium"
+                            style={{ fontSize: '13px', color: colors.danger, fontWeight: '600', background: 'none', border: 'none', cursor: 'pointer' }}
                           >
                             {showErrors ? 'Hide' : 'Show'} {uploadResult.errors.length} Error(s)
                           </button>
                           {showErrors && (
-                            <div className="mt-2 max-h-40 overflow-y-auto bg-red-50 border border-red-200 rounded p-3">
+                            <div style={{ marginTop: '12px', maxHeight: '160px', overflowY: 'auto', background: 'rgba(220, 38, 38, 0.05)', border: `1px solid ${colors.danger}`, borderRadius: '6px', padding: '12px' }}>
                               {uploadResult.errors.map((err, idx) => (
-                                <div key={idx} className="text-xs text-red-800 mb-1">
-                                  <span className="font-semibold">Row {err.row_index}:</span> {err.reason}
+                                <div key={idx} style={{ fontSize: '12px', color: colors.danger, marginBottom: '6px' }}>
+                                  <span style={{ fontWeight: '600' }}>Row {err.row_index}:</span> {err.reason}
                                 </div>
                               ))}
                             </div>
@@ -525,25 +523,25 @@ function SuperAdmin() {
                   )}
                 </div>
 
-                <div style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)', border: '2px solid #93c5fd', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
+                <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)', border: `2px solid ${colors.primary}`, borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                     </svg>
-                    <h3 style={{ color: '#1e40af', fontSize: '18px', fontWeight: '700', margin: '0' }}>AI-Powered Budget Creation</h3>
+                    <h3 style={{ color: colors.primaryDark, fontSize: '18px', fontWeight: '700', margin: '0' }}>AI-Powered Budget Creation</h3>
                   </div>
-                  <p style={{ color: '#1e40af', fontSize: '14px', margin: '0' }}>When you create a budget, AI automatically generates a citizen-friendly explanation that appears on the dashboard.</p>
+                  <p style={{ color: colors.primaryDark, fontSize: '14px', margin: '0' }}>When you create a budget, AI automatically generates a citizen-friendly explanation that appears on the dashboard.</p>
                 </div>
 
-                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', marginBottom: '24px' }}>
-                  <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
+                <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '28px', marginBottom: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
                     Create New Budget Allocation
                   </h3>
                   <form onSubmit={createBudget} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 3fr 1fr', gap: '16px' }}>
                     <select
                       value={newBudget.sector_id}
                       onChange={(e) => setNewBudget({ ...newBudget, sector_id: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     >
                       <option value="">Select Sector</option>
@@ -556,7 +554,7 @@ function SuperAdmin() {
                       placeholder="Year"
                       value={newBudget.year}
                       onChange={(e) => setNewBudget({ ...newBudget, year: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
                     <input
@@ -564,7 +562,7 @@ function SuperAdmin() {
                       placeholder="Amount (KSh)"
                       value={newBudget.amount}
                       onChange={(e) => setNewBudget({ ...newBudget, amount: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
                     <input
@@ -572,23 +570,23 @@ function SuperAdmin() {
                       placeholder="Description (e.g., Infrastructure development)"
                       value={newBudget.description}
                       onChange={(e) => setNewBudget({ ...newBudget, description: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
-                    <button type="submit" style={{ padding: '10px 20px', background: '#0066cc', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                    <button type="submit" style={{ padding: '10px 20px', background: colors.primary, color: colors.white, border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                       Create Budget
                     </button>
                   </form>
                 </div>
 
-                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
-                  <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb' }}>
-                    <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>All Budget Allocations</h3>
+                <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ padding: '24px', borderBottom: `1px solid ${colors.border}` }}>
+                    <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>All Budget Allocations</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                       <select
                         value={budgetFilters.county}
                         onChange={(e) => setBudgetFilters({ ...budgetFilters, county: e.target.value })}
-                        style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px' }}
+                        style={{ padding: '8px 12px', border: `1px solid ${colors.border}`, borderRadius: '6px', fontSize: '13px' }}
                       >
                         <option value="">All Counties</option>
                         {[...new Set(budgets.map(b => b.county).filter(Boolean))].sort().map(county => (
@@ -598,7 +596,7 @@ function SuperAdmin() {
                       <select
                         value={budgetFilters.year}
                         onChange={(e) => setBudgetFilters({ ...budgetFilters, year: e.target.value })}
-                        style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px' }}
+                        style={{ padding: '8px 12px', border: `1px solid ${colors.border}`, borderRadius: '6px', fontSize: '13px' }}
                       >
                         <option value="">All Years</option>
                         {[...new Set(budgets.map(b => b.year).filter(Boolean))].sort((a,b) => b-a).map(year => (
@@ -608,7 +606,7 @@ function SuperAdmin() {
                       <select
                         value={budgetFilters.sector}
                         onChange={(e) => setBudgetFilters({ ...budgetFilters, sector: e.target.value })}
-                        style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px' }}
+                        style={{ padding: '8px 12px', border: `1px solid ${colors.border}`, borderRadius: '6px', fontSize: '13px' }}
                       >
                         <option value="">All Sectors</option>
                         {[...new Set(budgets.map(b => b.sector_name).filter(Boolean))].sort().map(sector => (
@@ -618,7 +616,7 @@ function SuperAdmin() {
                       {(budgetFilters.county || budgetFilters.year || budgetFilters.sector) && (
                         <button
                           onClick={() => setBudgetFilters({ county: '', year: '', sector: '' })}
-                          style={{ padding: '8px 12px', background: '#f3f4f6', color: '#666', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+                          style={{ padding: '8px 12px', background: colors.background, color: colors.gray, border: `1px solid ${colors.border}`, borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
                         >
                           Clear Filters
                         </button>
@@ -626,7 +624,7 @@ function SuperAdmin() {
                     </div>
                   </div>
                   {budgets.length === 0 ? (
-                    <div style={{ padding: '60px', textAlign: 'center', color: '#999' }}>No budgets created yet</div>
+                    <div style={{ padding: '60px', textAlign: 'center', color: colors.lightGray }}>No budgets created yet</div>
                   ) : (
                     <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
                       {budgets.filter(budget => {
@@ -635,34 +633,34 @@ function SuperAdmin() {
                         if (budgetFilters.sector && budget.sector_name !== budgetFilters.sector) return false;
                         return true;
                       }).map(budget => (
-                        <div key={budget.id} style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6' }}>
+                        <div key={budget.id} style={{ padding: '20px 24px', borderBottom: `1px solid ${colors.border}` }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                             <div>
-                              <span style={{ padding: '4px 12px', background: '#dbeafe', color: '#1e40af', borderRadius: '6px', fontSize: '12px', fontWeight: '600', marginRight: '8px' }}>{budget.sector_name}</span>
-                              <span style={{ color: '#666', fontSize: '14px' }}>Year: {budget.year}</span>
+                              <span style={{ padding: '4px 12px', background: 'rgba(16, 185, 129, 0.1)', color: colors.primary, borderRadius: '6px', fontSize: '12px', fontWeight: '600', marginRight: '8px' }}>{budget.sector_name}</span>
+                              <span style={{ color: colors.gray, fontSize: '14px' }}>Year: {budget.year}</span>
                             </div>
                             <div>
-                              <span style={{ color: '#0066cc', fontSize: '18px', fontWeight: '700' }}>KSh {budget.amount.toLocaleString()}</span>
-                              <button onClick={() => deleteBudget(budget.id)} style={{ marginLeft: '16px', padding: '6px 12px', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                              <span style={{ color: colors.primary, fontSize: '18px', fontWeight: '700' }}>KSh {budget.amount.toLocaleString()}</span>
+                              <button onClick={() => deleteBudget(budget.id)} style={{ marginLeft: '16px', padding: '6px 12px', background: colors.danger, color: colors.white, border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                                 Delete
                               </button>
                             </div>
                           </div>
-                          <p style={{ color: '#1a1a1a', fontSize: '14px', margin: '0 0 12px 0', fontWeight: '600' }}>{budget.description}</p>
+                          <p style={{ color: colors.dark, fontSize: '14px', margin: '0 0 12px 0', fontWeight: '600' }}>{budget.description}</p>
                           {budget.citizen_explanation && (
                             <>
                               <button
                                 onClick={() => setExpandedBudget(expandedBudget === budget.id ? null : budget.id)}
-                                style={{ padding: '6px 12px', background: '#dbeafe', color: '#1e40af', border: '1px solid #93c5fd', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                style={{ padding: '6px 12px', background: 'rgba(16, 185, 129, 0.1)', color: colors.primary, border: `1px solid ${colors.primary}`, borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                               >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                                 </svg>
                                 {expandedBudget === budget.id ? 'Hide' : 'View'} AI Explanation
                               </button>
                               {expandedBudget === budget.id && (
-                                <div style={{ background: '#f0f9ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
-                                  <p style={{ color: '#1e40af', fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{budget.citizen_explanation}</p>
+                                <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: `1px solid ${colors.primary}`, borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
+                                  <p style={{ color: colors.darkGray, fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{budget.citizen_explanation}</p>
                                 </div>
                               )}
                             </>
@@ -678,26 +676,26 @@ function SuperAdmin() {
             {/* Expenditures Tab */}
             {activeTab === 'expenditures' && (
               <div>
-                <div style={{ background: 'linear-gradient(135deg, #fee2e2 0%, #fef3c7 100%)', border: '2px solid #fca5a5', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
+                <div style={{ background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)', border: `2px solid ${colors.danger}`, borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#991b1b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={colors.danger} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="12" y1="1" x2="12" y2="23"></line>
                       <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                     </svg>
-                    <h3 style={{ color: '#991b1b', fontSize: '18px', fontWeight: '700', margin: '0' }}>AI-Powered Expenditure Tracking</h3>
+                    <h3 style={{ color: colors.danger, fontSize: '18px', fontWeight: '700', margin: '0' }}>AI-Powered Expenditure Tracking</h3>
                   </div>
-                  <p style={{ color: '#991b1b', fontSize: '14px', margin: '0' }}>Record spending and AI generates transparent explanations for citizens showing how their tax money is being used.</p>
+                  <p style={{ color: colors.danger, fontSize: '14px', margin: '0' }}>Record spending and AI generates transparent explanations for citizens showing how their tax money is being used.</p>
                 </div>
 
-                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '28px', marginBottom: '24px' }}>
-                  <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
+                <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', padding: '28px', marginBottom: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '20px', margin: '0 0 20px 0' }}>
                     Record New Expenditure
                   </h3>
-                  <form onSubmit={createExpenditure} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 3fr 1fr', gap: '16px' }}>
+                  <form onSubmit={createExpenditure} style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                     <select
                       value={newExpenditure.budget_id}
                       onChange={(e) => setNewExpenditure({ ...newExpenditure, budget_id: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     >
                       <option value="">Select Budget</option>
@@ -710,7 +708,7 @@ function SuperAdmin() {
                       placeholder="Amount Spent (KSh)"
                       value={newExpenditure.amount}
                       onChange={(e) => setNewExpenditure({ ...newExpenditure, amount: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
                     <input
@@ -718,52 +716,52 @@ function SuperAdmin() {
                       placeholder="What was this spent on?"
                       value={newExpenditure.description}
                       onChange={(e) => setNewExpenditure({ ...newExpenditure, description: e.target.value })}
-                      style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      style={{ padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '8px', fontSize: '14px' }}
                       required
                     />
-                    <button type="submit" style={{ padding: '10px 20px', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                    <button type="submit" style={{ padding: '10px 20px', background: colors.danger, color: colors.white, border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                       Record Spending
                     </button>
                   </form>
                 </div>
 
-                <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
-                  <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb' }}>
-                    <h3 style={{ color: '#1a1a1a', fontSize: '18px', fontWeight: '700', margin: '0' }}>All Expenditures</h3>
+                <div style={{ background: colors.white, border: `1px solid ${colors.border}`, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ padding: '24px', borderBottom: `1px solid ${colors.border}` }}>
+                    <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', margin: '0' }}>All Expenditures</h3>
                   </div>
                   {expenditures.length === 0 ? (
-                    <div style={{ padding: '60px', textAlign: 'center', color: '#999' }}>No expenditures recorded yet</div>
+                    <div style={{ padding: '60px', textAlign: 'center', color: colors.lightGray }}>No expenditures recorded yet</div>
                   ) : (
                     <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
                       {expenditures.map(exp => (
-                        <div key={exp.id} style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6' }}>
+                        <div key={exp.id} style={{ padding: '20px 24px', borderBottom: `1px solid ${colors.border}` }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                             <div>
-                              <span style={{ padding: '4px 12px', background: '#fee2e2', color: '#991b1b', borderRadius: '6px', fontSize: '12px', fontWeight: '600', marginRight: '8px' }}>{exp.sector_name}</span>
-                              <span style={{ color: '#666', fontSize: '13px' }}>{new Date(exp.date).toLocaleDateString()}</span>
+                              <span style={{ padding: '4px 12px', background: 'rgba(220, 38, 38, 0.1)', color: colors.danger, borderRadius: '6px', fontSize: '12px', fontWeight: '600', marginRight: '8px' }}>{exp.sector_name}</span>
+                              <span style={{ color: colors.gray, fontSize: '13px' }}>{new Date(exp.date).toLocaleDateString()}</span>
                             </div>
                             <div>
-                              <span style={{ color: '#dc2626', fontSize: '18px', fontWeight: '700' }}>KSh {exp.amount.toLocaleString()}</span>
-                              <button onClick={() => deleteExpenditure(exp.id)} style={{ marginLeft: '16px', padding: '6px 12px', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                              <span style={{ color: colors.danger, fontSize: '18px', fontWeight: '700' }}>KSh {exp.amount.toLocaleString()}</span>
+                              <button onClick={() => deleteExpenditure(exp.id)} style={{ marginLeft: '16px', padding: '6px 12px', background: colors.danger, color: colors.white, border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                                 Delete
                               </button>
                             </div>
                           </div>
-                          <p style={{ color: '#1a1a1a', fontSize: '14px', margin: '0 0 12px 0', fontWeight: '600' }}>{exp.description}</p>
+                          <p style={{ color: colors.dark, fontSize: '14px', margin: '0 0 12px 0', fontWeight: '600' }}>{exp.description}</p>
                           {exp.citizen_explanation && (
                             <>
                               <button
                                 onClick={() => setExpandedExpenditure(expandedExpenditure === exp.id ? null : exp.id)}
-                                style={{ padding: '6px 12px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                style={{ padding: '6px 12px', background: 'rgba(220, 38, 38, 0.1)', color: colors.danger, border: `1px solid ${colors.danger}`, borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                               >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#991b1b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colors.danger} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                                 </svg>
                                 {expandedExpenditure === exp.id ? 'Hide' : 'View'} AI Explanation
                               </button>
                               {expandedExpenditure === exp.id && (
-                                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
-                                  <p style={{ color: '#991b1b', fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{exp.citizen_explanation}</p>
+                                <div style={{ background: 'rgba(220, 38, 38, 0.05)', border: `1px solid ${colors.danger}`, borderRadius: '8px', padding: '16px', marginTop: '12px' }}>
+                                  <p style={{ color: colors.darkGray, fontSize: '13px', margin: '0', whiteSpace: 'pre-line' }}>{exp.citizen_explanation}</p>
                                 </div>
                               )}
                             </>

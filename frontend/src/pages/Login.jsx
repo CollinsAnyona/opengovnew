@@ -157,9 +157,14 @@ function Login() {
             />
           </div>
           <div style={{ marginBottom: '25px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#fff' }}>
-              Password
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label style={{ fontSize: '14px', fontWeight: '500', color: '#fff' }}>
+                Password
+              </label>
+              <Link to="/forgot-password" style={{ color: '#3b82f6', textDecoration: 'none', fontSize: '13px', fontWeight: '500' }}>
+                Forgot Password?
+              </Link>
+            </div>
             <input
               type="password"
               placeholder="Enter your password"

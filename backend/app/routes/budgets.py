@@ -37,25 +37,27 @@ def get_budgets(
 ):
     query = db.query(Budget)
     if sector:
-        # Find sector by name (case-insensitive) and filter by sector_id
         sector_obj = db.query(Sector).filter(Sector.name.ilike(sector)).first()
         if sector_obj:
             query = query.filter(Budget.sector_id == sector_obj.id)
         else:
-            return []  # No sector found, return empty
+            return []
     if county:
         query = query.filter(Budget.county.ilike(county))
     if year:
         query = query.filter(Budget.year == year)
     
     budgets = query.all()
+    sector_ids = list(set(b.sector_id for b in budgets))
+    sectors = db.query(Sector).filter(Sector.id.in_(sector_ids)).all()
+    sector_map = {s.id: s.name for s in sectors}
+    
     result = []
     for b in budgets:
-        sector_obj = db.query(Sector).filter(Sector.id == b.sector_id).first()
         result.append({
             "id": b.id,
             "sector_id": b.sector_id,
-            "sector": sector_obj.name if sector_obj else None,
+            "sector": sector_map.get(b.sector_id),
             "year": b.year,
             "amount": b.amount,
             "description": b.description,

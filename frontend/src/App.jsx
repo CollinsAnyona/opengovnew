@@ -2,10 +2,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Feedback from './pages/Feedback';
 import Admin from './pages/Admin';
 import SuperAdmin from './pages/SuperAdmin';
+import UserManagement from './pages/UserManagement';
 import Expenditures from './pages/Expenditures';
 import Forum from './pages/Forum';
 import ForumPost from './pages/ForumPost';
@@ -21,6 +23,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route 
           path="/dashboard" 
           element={
@@ -97,6 +100,16 @@ function App() {
             <AdminRoute>
               <Layout>
                 <SuperAdmin />
+              </Layout>
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/user-management" 
+          element={
+            <AdminRoute>
+              <Layout>
+                <UserManagement />
               </Layout>
             </AdminRoute>
           } 
