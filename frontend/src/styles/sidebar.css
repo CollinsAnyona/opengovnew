@@ -1,0 +1,10 @@
+/* Sidebar layout adjustments */
+body.admin-sidebar-open {
+  margin-left: 256px; /* 64 * 4 = 256px (w-64) */
+}
+
+@media (max-width: 768px) {
+  body.admin-sidebar-open {
+    margin-left: 0;
+  }
+}
