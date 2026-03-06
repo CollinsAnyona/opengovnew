@@ -5,6 +5,9 @@ from typing import List, Optional
 class ForumReplyCreate(BaseModel):
     content: str
 
+class ForumReplyUpdate(BaseModel):
+    content: str
+
 class ForumReplyRead(BaseModel):
     id: int
     post_id: int
@@ -21,6 +24,11 @@ class ForumPostCreate(BaseModel):
     content: str
     category: str
     sector_id: Optional[int] = None
+
+class ForumPostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
 
 class ForumPostRead(BaseModel):
     id: int

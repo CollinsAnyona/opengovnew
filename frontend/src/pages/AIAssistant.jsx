@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import apiClient from '../api/apiClient';
 import { Bot, Send, Lightbulb, TrendingUp, Target } from 'lucide-react';
+import { colors } from '../theme/colors';
 import '../styles/responsive.css';
 
 function AIAssistant() {
@@ -105,47 +106,40 @@ function AIAssistant() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', paddingBottom: '40px' }}>
+    <div style={{ minHeight: '100vh', background: colors.background }}>
       {/* Header */}
-      <div style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', marginBottom: '30px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: 'clamp(20px, 4vw, 30px) clamp(20px, 4vw, 40px)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
-            <Bot size={32} color="#0066cc" strokeWidth={2} />
-            <h1 style={{ color: '#1a1a1a', fontSize: 'clamp(20px, 5vw, 28px)', fontWeight: '700', margin: '0', flex: 1 }}>
-              AI Budget Assistant
+      <div style={{ background: colors.primary, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '16px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h1 style={{ color: colors.white, fontSize: '20px', fontWeight: '600', margin: '0' }}>
+              OpenGov Kenya
             </h1>
-            <button
-              onClick={clearChat}
-              style={{
-                padding: 'clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px)',
-                background: '#f3f4f6',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: 'clamp(10px, 2.5vw, 12px)',
-                color: '#666',
-                cursor: 'pointer',
-                fontWeight: '500'
-              }}
-            >
-              Clear Chat
-            </button>
           </div>
-          <p style={{ color: '#666', fontSize: 'clamp(12px, 3vw, 15px)', margin: '0' }}>
-            Ask me anything about government budgets, spending, and citizen feedback. I have real-time data!
-          </p>
+          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+            AI Budget Assistant
+          </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 clamp(20px, 4vw, 40px)' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '30px 40px' }}>
+        <div style={{ marginBottom: '30px' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: '700', color: colors.dark, marginBottom: '8px' }}>
+            AI Budget Assistant
+          </h2>
+          <p style={{ fontSize: '15px', color: colors.gray }}>
+            Ask me anything about government budgets, spending, and citizen feedback
+          </p>
+        </div>
         {/* Chat Container */}
         <div style={{ 
-          background: '#ffffff', 
-          border: '1px solid #e5e7eb', 
-          borderRadius: 'clamp(8px, 2vw, 12px)', 
-          height: 'clamp(400px, 60vh, 600px)',
+          background: colors.white, 
+          border: '1px solid ' + colors.border, 
+          borderRadius: '12px', 
+          height: '600px',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+          marginBottom: '24px'
         }}>
           {/* Messages Area */}
           <div style={{ 
@@ -168,8 +162,8 @@ function AIAssistant() {
                   maxWidth: '75%',
                   padding: '12px 16px',
                   borderRadius: '12px',
-                  background: msg.type === 'user' ? '#0066cc' : '#f3f4f6',
-                  color: msg.type === 'user' ? '#ffffff' : '#1a1a1a',
+                  background: msg.type === 'user' ? colors.primary : colors.background,
+                  color: msg.type === 'user' ? colors.white : colors.dark,
                   fontSize: '14px',
                   lineHeight: '1.6'
                 }}>
@@ -178,9 +172,9 @@ function AIAssistant() {
                     <div style={{ 
                       marginTop: '12px', 
                       paddingTop: '12px', 
-                      borderTop: '1px solid #e5e7eb',
+                      borderTop: '1px solid ' + colors.border,
                       fontSize: '12px',
-                      color: '#666'
+                      color: colors.gray
                     }}>
                       <div><strong>Total Budget:</strong> KSh {msg.data.total_budget.toLocaleString()}</div>
                       <div><strong>Total Spent:</strong> KSh {msg.data.total_spent.toLocaleString()}</div>
@@ -195,8 +189,8 @@ function AIAssistant() {
                 <div style={{
                   padding: '12px 16px',
                   borderRadius: '12px',
-                  background: '#f3f4f6',
-                  color: '#666',
+                  background: colors.background,
+                  color: colors.gray,
                   fontSize: '14px'
                 }}>
                   <span>AI is thinking</span>
@@ -211,10 +205,10 @@ function AIAssistant() {
           {messages.length === 1 && suggestions.length > 0 && (
             <div style={{ 
               padding: '16px 24px', 
-              borderTop: '1px solid #e5e7eb',
-              background: '#fafafa'
+              borderTop: '1px solid ' + colors.border,
+              background: colors.background
             }}>
-              <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px', fontWeight: '600' }}>
+              <div style={{ fontSize: '12px', color: colors.gray, marginBottom: '8px', fontWeight: '600' }}>
                 Try asking:
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -224,21 +218,21 @@ function AIAssistant() {
                     onClick={() => handleSuggestionClick(suggestion)}
                     style={{
                       padding: '6px 12px',
-                      background: '#ffffff',
-                      border: '1px solid #d1d5db',
+                      background: colors.white,
+                      border: '1px solid ' + colors.border,
                       borderRadius: '6px',
                       fontSize: '12px',
-                      color: '#666',
+                      color: colors.gray,
                       cursor: 'pointer',
                       transition: 'all 0.2s'
                     }}
                     onMouseOver={(e) => {
-                      e.currentTarget.style.borderColor = '#0066cc';
-                      e.currentTarget.style.color = '#0066cc';
+                      e.currentTarget.style.borderColor = colors.primary;
+                      e.currentTarget.style.color = colors.primary;
                     }}
                     onMouseOut={(e) => {
-                      e.currentTarget.style.borderColor = '#d1d5db';
-                      e.currentTarget.style.color = '#666';
+                      e.currentTarget.style.borderColor = colors.border;
+                      e.currentTarget.style.color = colors.gray;
                     }}
                   >
                     {suggestion}
@@ -251,92 +245,126 @@ function AIAssistant() {
           {/* Input Area */}
           <form onSubmit={handleSubmit} style={{ 
             padding: '20px 24px', 
-            borderTop: '1px solid #e5e7eb',
-            background: '#ffffff'
+            borderTop: '1px solid ' + colors.border,
+            background: colors.white,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
           }}>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about budgets, spending, sectors, or citizen feedback..."
-                disabled={loading}
-                style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  outline: 'none'
-                }}
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                style={{
-                  padding: '12px 24px',
-                  background: loading || !input.trim() ? '#d1d5db' : '#0066cc',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                <Send size={16} />
-                Send
-              </button>
-            </div>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask about budgets, spending, sectors, or citizen feedback..."
+              disabled={loading}
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                border: '1px solid ' + colors.border,
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none',
+                color: colors.dark
+              }}
+            />
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              style={{
+                padding: '12px 24px',
+                background: loading || !input.trim() ? colors.border : colors.primary,
+                color: colors.white,
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease',
+                boxShadow: loading || !input.trim() ? 'none' : '0 2px 4px rgba(16, 185, 129, 0.2)'
+              }}
+              onMouseOver={(e) => !loading && input.trim() && (e.target.style.background = colors.primaryDark)}
+              onMouseOut={(e) => !loading && input.trim() && (e.target.style.background = colors.primary)}
+            >
+              <Send size={16} />
+              Send
+            </button>
+            <button
+              onClick={clearChat}
+              type="button"
+              style={{
+                padding: '12px 20px',
+                background: colors.background,
+                border: '1px solid ' + colors.border,
+                borderRadius: '8px',
+                fontSize: '14px',
+                color: colors.gray,
+                cursor: 'pointer',
+                fontWeight: '600',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => e.target.style.background = colors.border}
+              onMouseOut={(e) => e.target.style.background = colors.background}
+            >
+              Clear
+            </button>
           </form>
         </div>
 
         {/* Info Cards */}
-        <div className="grid-responsive" style={{ marginTop: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           <div style={{ 
-            background: '#ffffff', 
-            border: '1px solid #e5e7eb', 
+            background: colors.white, 
+            border: '1px solid ' + colors.border, 
             borderRadius: '12px', 
-            padding: '20px' 
+            padding: '24px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.06)'
           }}>
-            <Lightbulb size={28} color="#f59e0b" strokeWidth={2} style={{ marginBottom: '8px' }} />
-            <h3 style={{ fontSize: '16px', fontWeight: '700', margin: '0 0 8px 0', color: '#1a1a1a' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+              <Lightbulb size={24} color={colors.warning} strokeWidth={2} />
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0', color: colors.dark }}>
               Real-Time Data
             </h3>
-            <p style={{ fontSize: '13px', color: '#666', margin: '0', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '14px', color: colors.gray, margin: '0', lineHeight: '1.6' }}>
               I analyze live budget allocations, expenditures, and citizen feedback to give you accurate answers.
             </p>
           </div>
 
           <div style={{ 
-            background: '#ffffff', 
-            border: '1px solid #e5e7eb', 
+            background: colors.white, 
+            border: '1px solid ' + colors.border, 
             borderRadius: '12px', 
-            padding: '20px' 
+            padding: '24px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.06)'
           }}>
-            <TrendingUp size={28} color="#0066cc" strokeWidth={2} style={{ marginBottom: '8px' }} />
-            <h3 style={{ fontSize: '16px', fontWeight: '700', margin: '0 0 8px 0', color: '#1a1a1a' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+              <TrendingUp size={24} color={colors.primary} strokeWidth={2} />
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0', color: colors.dark }}>
               Data-Driven Insights
             </h3>
-            <p style={{ fontSize: '13px', color: '#666', margin: '0', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '14px', color: colors.gray, margin: '0', lineHeight: '1.6' }}>
               Get specific numbers, trends, and comparisons across sectors and counties.
             </p>
           </div>
 
           <div style={{ 
-            background: '#ffffff', 
-            border: '1px solid #e5e7eb', 
+            background: colors.white, 
+            border: '1px solid ' + colors.border, 
             borderRadius: '12px', 
-            padding: '20px' 
+            padding: '24px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.06)'
           }}>
-            <Target size={28} color="#059669" strokeWidth={2} style={{ marginBottom: '8px' }} />
-            <h3 style={{ fontSize: '16px', fontWeight: '700', margin: '0 0 8px 0', color: '#1a1a1a' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+              <Target size={24} color={colors.primaryDark} strokeWidth={2} />
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0', color: colors.dark }}>
               Actionable Answers
             </h3>
-            <p style={{ fontSize: '13px', color: '#666', margin: '0', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '14px', color: colors.gray, margin: '0', lineHeight: '1.6' }}>
               Ask complex questions and get clear, actionable insights about government spending.
             </p>
           </div>

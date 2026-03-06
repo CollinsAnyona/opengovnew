@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../api/apiClient';
+import { colors } from '../theme/colors';
 
 function Feedback() {
   const [message, setMessage] = useState('');
@@ -54,28 +55,43 @@ function Feedback() {
   };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Citizen Governance Feedback Portal
-        </h1>
-        <p className="text-gray-600">
-          Submit structured feedback to support transparent civic participation and governance accountability
-        </p>
+    <div style={{ minHeight: '100vh', background: colors.background }}>
+      {/* Header */}
+      <div style={{ background: colors.primary, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '16px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h1 style={{ color: colors.white, fontSize: '20px', fontWeight: '600', margin: '0' }}>
+              OpenGov Kenya
+            </h1>
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+            Citizen Feedback
+          </div>
+        </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Submit Feedback</h2>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '30px 40px' }}>
+        <div style={{ marginBottom: '30px' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: '700', color: colors.dark, marginBottom: '8px' }}>
+            Citizen Governance Feedback Portal
+          </h2>
+          <p style={{ fontSize: '15px', color: colors.gray }}>
+            Submit structured feedback to support transparent civic participation and governance accountability
+          </p>
+        </div>
+
+      <div style={{ background: colors.white, border: '1px solid ' + colors.border, borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)', padding: '28px', marginBottom: '24px' }}>
+        <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>Submit Feedback</h3>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.dark, marginBottom: '8px' }}>
               Sector
             </label>
             <select 
               value={sectorId} 
               onChange={(e) => setSectorId(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              style={{ width: '100%', padding: '10px 14px', border: '1px solid ' + colors.border, borderRadius: '8px', fontSize: '14px', color: colors.dark, outline: 'none' }}
               required
             >
               {sectors.map((sector) => (
@@ -87,7 +103,7 @@ function Feedback() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.dark, marginBottom: '8px' }}>
               Feedback Message
             </label>
             <textarea
@@ -95,19 +111,19 @@ function Feedback() {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Enter your feedback regarding governance, budget allocation, or civic concerns..."
               rows={6}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              style={{ width: '100%', padding: '10px 14px', border: '1px solid ' + colors.border, borderRadius: '8px', fontSize: '14px', color: colors.dark, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
               required
             />
           </div>
 
           {success && (
-            <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+            <div style={{ padding: '12px 16px', background: 'rgba(22, 163, 74, 0.1)', border: '1px solid ' + colors.success, color: colors.success, borderRadius: '8px', fontSize: '14px' }}>
               {success}
             </div>
           )}
           
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+            <div style={{ padding: '12px 16px', background: 'rgba(220, 38, 38, 0.1)', border: '1px solid ' + colors.danger, color: colors.danger, borderRadius: '8px', fontSize: '14px' }}>
               {error}
             </div>
           )}
@@ -115,7 +131,9 @@ function Feedback() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:bg-gray-400"
+            style={{ width: '100%', background: loading ? colors.border : colors.primary, color: colors.white, fontWeight: '600', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '15px', transition: 'all 0.2s ease', boxShadow: loading ? 'none' : '0 2px 4px rgba(16, 185, 129, 0.2)' }}
+            onMouseOver={(e) => !loading && (e.target.style.background = colors.primaryDark)}
+            onMouseOut={(e) => !loading && (e.target.style.background = colors.primary)}
           >
             {loading ? 'Submitting...' : 'Submit Feedback'}
           </button>
@@ -123,37 +141,41 @@ function Feedback() {
       </div>
 
       {moderation && (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Moderation Result</h3>
+        <div style={{ background: colors.white, border: '1px solid ' + colors.border, borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)', padding: '28px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.dark, marginBottom: '20px' }}>AI Moderation Result</h3>
           
-          <div className="space-y-3">
-            <div className="flex items-center">
-              <span className="text-sm font-medium text-gray-700 mr-3">Status:</span>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                moderation.is_clean 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
-              }`}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.dark, marginRight: '12px' }}>Status:</span>
+              <span style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '600',
+                background: moderation.is_clean ? 'rgba(22, 163, 74, 0.1)' : 'rgba(220, 38, 38, 0.1)',
+                color: moderation.is_clean ? colors.success : colors.danger
+              }}>
                 {moderation.is_clean ? 'Clean' : 'Flagged'}
               </span>
             </div>
 
             <div>
-              <span className="text-sm font-medium text-gray-700">AI Summary:</span>
-              <p className="text-sm text-gray-600 mt-1">{moderation.summary}</p>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.dark }}>AI Summary:</span>
+              <p style={{ fontSize: '14px', color: colors.gray, marginTop: '6px', lineHeight: '1.6' }}>{moderation.summary}</p>
             </div>
 
             <div>
-              <span className="text-sm font-medium text-gray-700">Confidence Score:</span>
-              <p className="text-sm text-gray-600 mt-1">{moderation.confidence_score}</p>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.dark }}>Confidence Score:</span>
+              <p style={{ fontSize: '14px', color: colors.gray, marginTop: '6px' }}>{moderation.confidence_score}</p>
             </div>
           </div>
 
-          <p className="text-xs text-gray-500 mt-4 pt-4 border-t border-gray-200">
+          <p style={{ fontSize: '12px', color: colors.lightGray, marginTop: '20px', paddingTop: '20px', borderTop: '1px solid ' + colors.border }}>
             AI analysis is assistive and subject to human administrative review.
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 }

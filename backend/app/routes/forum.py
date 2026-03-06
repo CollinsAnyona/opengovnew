@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
-from app.schemas.forum import ForumPostCreate, ForumPostRead, ForumPostDetail, ForumReplyCreate, ForumReplyRead
+from app.schemas.forum import ForumPostCreate, ForumPostRead, ForumPostDetail, ForumReplyCreate, ForumReplyRead, ForumPostUpdate, ForumReplyUpdate
 from app.models.forum_post import ForumPost
 from app.models.forum_reply import ForumReply
 from app.models.user import User
@@ -11,6 +11,8 @@ from app.services.forum_moderation_service import ForumModerationService
 from app.db.session import SessionLocal
 from app.services.email_service import send_forum_reply_email, send_forum_moderation_email
 from app.services.gemini_service import GeminiAIService
+
+from app.core.security import verify_token
 
 router = APIRouter(prefix="/forum", tags=["forum"])
 
@@ -24,6 +26,9 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def get_current_user(token_data: dict = Depends(verify_token)):
+    return token_data
 
 @router.get("/posts", response_model=List[ForumPostRead])
 def get_posts(category: Optional[str] = None, sector_id: Optional[int] = None, db: Session = Depends(get_db)):
@@ -94,7 +99,7 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
     }
 
 @router.post("/posts", response_model=ForumPostRead)
-def create_post(post: ForumPostCreate, db: Session = Depends(get_db)):
+def create_post(post: ForumPostCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     # AI Moderation using Gemini
     title_moderation = GeminiAIService.moderate_content(post.title, "forum post title")
     content_moderation = GeminiAIService.moderate_content(post.content, "forum post")
@@ -111,7 +116,7 @@ def create_post(post: ForumPostCreate, db: Session = Depends(get_db)):
             sector_id = None
     
     db_post = ForumPost(
-        user_id=1,
+        user_id=int(current_user['sub']),
         title=post.title,
         content=post.content,
         category=post.category,
@@ -145,7 +150,7 @@ def create_post(post: ForumPostCreate, db: Session = Depends(get_db)):
     }
 
 @router.post("/posts/{post_id}/replies", response_model=ForumReplyRead)
-def create_reply(post_id: int, reply: ForumReplyCreate, db: Session = Depends(get_db)):
+def create_reply(post_id: int, reply: ForumReplyCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     post = db.query(ForumPost).filter(ForumPost.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -155,7 +160,7 @@ def create_reply(post_id: int, reply: ForumReplyCreate, db: Session = Depends(ge
     
     db_reply = ForumReply(
         post_id=post_id,
-        user_id=1,
+        user_id=int(current_user['sub']),
         content=reply.content,
         is_flagged=moderation['is_flagged'],
         flagged_reason=moderation.get('reason'),
@@ -191,6 +196,125 @@ def create_reply(post_id: int, reply: ForumReplyCreate, db: Session = Depends(ge
         "created_at": db_reply.created_at,
         "user_name": user.name if user else "Unknown"
     }
+
+
+@router.put("/posts/{post_id}", response_model=ForumPostRead)
+def update_post(post_id: int, post_update: ForumPostUpdate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    post = db.query(ForumPost).filter(ForumPost.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Check if user owns the post
+    if post.user_id != int(current_user['sub']):
+        raise HTTPException(status_code=403, detail="Not authorized to edit this post")
+    
+    # AI Moderation for updated content
+    if post_update.title:
+        title_moderation = GeminiAIService.moderate_content(post_update.title, "forum post title")
+        post.title = post_update.title
+        post.is_flagged = title_moderation['is_flagged']
+        post.flagged_reason = title_moderation.get('reason')
+    
+    if post_update.content:
+        content_moderation = GeminiAIService.moderate_content(post_update.content, "forum post")
+        post.content = post_update.content
+        if content_moderation['is_flagged']:
+            post.is_flagged = True
+            post.flagged_reason = content_moderation.get('reason')
+    
+    if post_update.category:
+        post.category = post_update.category
+    
+    post.moderation_status = 'pending' if post.is_flagged else 'approved'
+    
+    db.commit()
+    db.refresh(post)
+    
+    user = db.query(User).filter(User.id == post.user_id).first()
+    sector_name = None
+    if post.sector_id:
+        from app.models.sector import Sector
+        sector = db.query(Sector).filter(Sector.id == post.sector_id).first()
+        sector_name = sector.name if sector else None
+    
+    return {
+        "id": post.id,
+        "user_id": post.user_id,
+        "title": post.title,
+        "content": post.content,
+        "category": post.category,
+        "sector_id": post.sector_id,
+        "sector_name": sector_name,
+        "created_at": post.created_at,
+        "user_name": user.name if user else "Unknown",
+        "reply_count": len([r for r in post.replies if r.moderation_status != 'removed'])
+    }
+
+@router.delete("/posts/{post_id}")
+def delete_post(post_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    post = db.query(ForumPost).filter(ForumPost.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Check if user owns the post
+    if post.user_id != int(current_user['sub']):
+        raise HTTPException(status_code=403, detail="Not authorized to delete this post")
+    
+    # Delete all replies first
+    db.query(ForumReply).filter(ForumReply.post_id == post_id).delete()
+    
+    # Delete the post
+    db.delete(post)
+    db.commit()
+    
+    return {"message": "Post deleted successfully"}
+
+@router.put("/posts/{post_id}/replies/{reply_id}", response_model=ForumReplyRead)
+def update_reply(post_id: int, reply_id: int, reply_update: ForumReplyUpdate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    reply = db.query(ForumReply).filter(ForumReply.id == reply_id, ForumReply.post_id == post_id).first()
+    if not reply:
+        raise HTTPException(status_code=404, detail="Reply not found")
+    
+    # Check if user owns the reply
+    if reply.user_id != int(current_user['sub']):
+        raise HTTPException(status_code=403, detail="Not authorized to edit this reply")
+    
+    # AI Moderation for updated content
+    moderation = GeminiAIService.moderate_content(reply_update.content, "forum reply")
+    
+    reply.content = reply_update.content
+    reply.is_flagged = moderation['is_flagged']
+    reply.flagged_reason = moderation.get('reason')
+    reply.moderation_status = 'pending' if moderation['is_flagged'] else 'approved'
+    
+    db.commit()
+    db.refresh(reply)
+    
+    user = db.query(User).filter(User.id == reply.user_id).first()
+    
+    return {
+        "id": reply.id,
+        "post_id": reply.post_id,
+        "user_id": reply.user_id,
+        "content": reply.content,
+        "created_at": reply.created_at,
+        "user_name": user.name if user else "Unknown"
+    }
+
+@router.delete("/posts/{post_id}/replies/{reply_id}")
+def delete_reply(post_id: int, reply_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    reply = db.query(ForumReply).filter(ForumReply.id == reply_id, ForumReply.post_id == post_id).first()
+    if not reply:
+        raise HTTPException(status_code=404, detail="Reply not found")
+    
+    # Check if user owns the reply
+    if reply.user_id != int(current_user['sub']):
+        raise HTTPException(status_code=403, detail="Not authorized to delete this reply")
+    
+    db.delete(reply)
+    db.commit()
+    
+    return {"message": "Reply deleted successfully"}
 
 
 # Admin endpoints for moderation
