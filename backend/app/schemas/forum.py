@@ -22,7 +22,7 @@ class ForumReplyRead(BaseModel):
 class ForumPostCreate(BaseModel):
     title: str
     content: str
-    category: str
+    category: Optional[str] = 'general'
     sector_id: Optional[int] = None
 
 class ForumPostUpdate(BaseModel):

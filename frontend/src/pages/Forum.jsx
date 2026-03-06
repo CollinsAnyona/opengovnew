@@ -10,7 +10,7 @@ function Forum() {
   const [category, setCategory] = useState('all');
   const [selectedSector, setSelectedSector] = useState('all');
   const [showCreatePost, setShowCreatePost] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', content: '', category: 'general', sector_id: null });
+  const [newPost, setNewPost] = useState({ title: '', content: '', sector_id: null });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const userRole = getUserRole();
@@ -155,21 +155,6 @@ function Forum() {
             <form onSubmit={handleCreatePost}>
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', color: colors.dark, fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
-                  Category
-                </label>
-                <select
-                  value={newPost.category}
-                  onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + colors.border, borderRadius: '8px', fontSize: '14px', color: colors.dark }}
-                  required
-                >
-                  <option value="general">General</option>
-                  <option value="education">Education</option>
-                  <option value="health">Health</option>
-                </select>
-              </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', color: colors.dark, fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
                   Sector (Optional)
                 </label>
                 <select
@@ -288,19 +273,6 @@ function Forum() {
                       {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
                     </p>
                   </div>
-                  <span style={{
-                    padding: '4px 12px',
-                    background: post.category === 'education' ? '#dbeafe' : post.category === 'health' ? '#dcfce7' : '#f3f4f6',
-                    color: post.category === 'education' ? colors.primaryDark : post.category === 'health' ? '#166534' : colors.gray,
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    textTransform: 'capitalize',
-                    marginLeft: '16px',
-                    flexShrink: 0
-                  }}>
-                    {post.category}
-                  </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px', color: colors.lightGray, fontSize: '13px' }}>
                   <span>By {post.user_name}</span>
