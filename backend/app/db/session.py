@@ -4,6 +4,7 @@ import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./opengov.db")
 
+# For production, use SQLite (simpler for small deployments)
 # Render uses postgres:// but SQLAlchemy needs postgresql://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
