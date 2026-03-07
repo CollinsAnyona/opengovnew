@@ -264,7 +264,7 @@ MIT License - See LICENSE file for details
 
 ## Team
 
-- **Developer:** Collins Anyona
+- **Developer:** Collins Otieno Junior
 - **Institution:** African Leadership University
 - **Course:** Capstone Project 2026
 - **Supervisor:** Pelin Mutanguha
