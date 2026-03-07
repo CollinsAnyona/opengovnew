@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../api/apiClient';
+import { colors } from '../theme/colors';
 
 const kenyanCounties = [
   'Mombasa', 'Kwale', 'Kilifi', 'Tana River', 'Lamu', 'Taita-Taveta', 'Garissa', 'Wajir',
@@ -14,20 +15,20 @@ const kenyanCounties = [
 const inputStyle = {
   width: '100%',
   padding: '12px',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
+  border: '1px solid ' + colors.border,
   borderRadius: '8px',
   fontSize: '14px',
   boxSizing: 'border-box',
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  color: '#fff'
+  background: colors.white,
+  color: colors.dark
 };
 
 const labelStyle = {
   display: 'block',
   marginBottom: '8px',
   fontSize: '14px',
-  fontWeight: '500',
-  color: '#fff'
+  fontWeight: '600',
+  color: colors.dark
 };
 
 function Register() {
@@ -91,150 +92,114 @@ function Register() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#000',
-      position: 'relative',
-      overflow: 'hidden',
-      padding: '20px'
-    }}>
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: 'linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px)',
-        backgroundSize: '100px 100px',
-        opacity: 0.5
-      }} />
-      
-      <div style={{
-        position: 'absolute',
-        top: '20%',
-        right: '10%',
-        width: '500px',
-        height: '500px',
-        background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
-        borderRadius: '50%',
-        filter: 'blur(80px)'
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '10%',
-        left: '10%',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)',
-        borderRadius: '50%',
-        filter: 'blur(80px)'
-      }} />
+    <div style={{ minHeight: '100vh', background: colors.background, display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ background: colors.primary, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '16px 40px' }}>
+          <Link to="/" style={{ color: colors.white, fontSize: '20px', fontWeight: '600', textDecoration: 'none' }}>
+            OpenGov Kenya
+          </Link>
+        </div>
+      </div>
 
-      <div style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '50px',
-        borderRadius: '20px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-        width: '100%',
-        maxWidth: '550px',
-        position: 'relative',
-        zIndex: 1
-      }}>
-        <h1 style={{
-          textAlign: 'center',
-          color: '#fff',
-          marginBottom: '10px',
-          fontSize: '32px',
-          fontWeight: '700'
-        }}>Create Account</h1>
-        <p style={{
-          textAlign: 'center',
-          color: 'rgba(255, 255, 255, 0.6)',
-          marginBottom: '30px',
-          fontSize: '14px'
-        }}>Join OpenGov to track government spending</p>
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Full Name</label>
-            <input type="text" name="name" placeholder="John Doe" value={formData.name} onChange={handleChange} required style={inputStyle} />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Email Address</label>
-            <input type="email" name="email" placeholder="john@example.com" value={formData.email} onChange={handleChange} required style={inputStyle} />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>County</label>
-            <select name="county" value={formData.county} onChange={handleChange} required style={{...inputStyle, cursor: 'pointer'}}>
-              <option value="" style={{backgroundColor: '#1a1a1a'}}>Select your county</option>
-              {kenyanCounties.map(county => (
-                <option key={county} value={county} style={{backgroundColor: '#1a1a1a'}}>{county}</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Phone Number (Optional)</label>
-            <input type="tel" name="phone" placeholder="0712345678" value={formData.phone} onChange={handleChange} style={inputStyle} />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Constituency (Optional)</label>
-            <input type="text" name="constituency" placeholder="e.g., Westlands, Kibra" value={formData.constituency} onChange={handleChange} style={inputStyle} />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Password</label>
-            <input type="password" name="password" placeholder="Minimum 8 characters" value={formData.password} onChange={handleChange} required minLength={8} style={inputStyle} />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Confirm Password</label>
-            <input type="password" name="confirmPassword" placeholder="Re-enter password" value={formData.confirmPassword} onChange={handleChange} required style={inputStyle} />
-          </div>
-
-          <div style={{ marginBottom: '25px' }}>
-            <label style={{ display: 'flex', alignItems: 'flex-start', fontSize: '14px', color: 'rgba(255, 255, 255, 0.8)', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                name="acceptedTerms"
-                checked={formData.acceptedTerms}
-                onChange={(e) => setFormData({ ...formData, acceptedTerms: e.target.checked })}
-                required
-                style={{ marginRight: '10px', marginTop: '3px', cursor: 'pointer' }}
-              />
-              <span>
-                I agree to the <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>Terms and Conditions</a> and <a href="#" style={{ color: '#3b82f6', textDecoration: 'none' }}>Privacy Policy</a>
-              </span>
-            </label>
-          </div>
-
-          <button type="submit" style={{
-            width: '100%',
-            padding: '14px',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
-          }}>
+      {/* Content */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+        <div style={{
+          background: colors.white,
+          border: '1px solid ' + colors.border,
+          borderRadius: '12px',
+          padding: '48px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          width: '100%',
+          maxWidth: '540px'
+        }}>
+          <h1 style={{ textAlign: 'center', color: colors.dark, marginBottom: '8px', fontSize: '28px', fontWeight: '700' }}>
             Create Account
-          </button>
+          </h1>
+          <p style={{ textAlign: 'center', color: colors.gray, marginBottom: '32px', fontSize: '14px' }}>
+            Join OpenGov to track government spending
+          </p>
 
-          {success && <p style={{ color: '#10b981', marginTop: '15px', fontSize: '14px', textAlign: 'center' }}>{success}</p>}
-          {error && <p style={{ color: '#ef4444', marginTop: '15px', fontSize: '14px', textAlign: 'center' }}>{error}</p>}
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>Full Name</label>
+              <input type="text" name="name" placeholder="John Doe" value={formData.name} onChange={handleChange} required style={inputStyle} />
+            </div>
 
-        <p style={{ textAlign: 'center', marginTop: '25px', color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px' }}>
-          Already have an account? <Link to="/login" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: '600' }}>Sign In</Link>
-        </p>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>Email Address</label>
+              <input type="email" name="email" placeholder="john@example.com" value={formData.email} onChange={handleChange} required style={inputStyle} />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>County</label>
+              <select name="county" value={formData.county} onChange={handleChange} required style={{...inputStyle, cursor: 'pointer'}}>
+                <option value="">Select your county</option>
+                {kenyanCounties.map(county => (
+                  <option key={county} value={county}>{county}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>Phone Number (Optional)</label>
+              <input type="tel" name="phone" placeholder="0712345678" value={formData.phone} onChange={handleChange} style={inputStyle} />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>Constituency (Optional)</label>
+              <input type="text" name="constituency" placeholder="e.g., Westlands, Kibra" value={formData.constituency} onChange={handleChange} style={inputStyle} />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>Password</label>
+              <input type="password" name="password" placeholder="Minimum 8 characters" value={formData.password} onChange={handleChange} required minLength={8} style={inputStyle} />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>Confirm Password</label>
+              <input type="password" name="confirmPassword" placeholder="Re-enter password" value={formData.confirmPassword} onChange={handleChange} required style={inputStyle} />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', fontSize: '14px', color: colors.gray, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  name="acceptedTerms"
+                  checked={formData.acceptedTerms}
+                  onChange={(e) => setFormData({ ...formData, acceptedTerms: e.target.checked })}
+                  required
+                  style={{ marginRight: '10px', marginTop: '3px', cursor: 'pointer' }}
+                />
+                <span>
+                  I agree to the <a href="#" style={{ color: colors.primary, textDecoration: 'none' }}>Terms and Conditions</a> and <a href="#" style={{ color: colors.primary, textDecoration: 'none' }}>Privacy Policy</a>
+                </span>
+              </label>
+            </div>
+
+            <button type="submit" style={{
+              width: '100%',
+              padding: '14px',
+              background: colors.primary,
+              color: colors.white,
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+            }}>
+              Create Account
+            </button>
+
+            {success && <p style={{ color: colors.success, marginTop: '16px', fontSize: '14px', textAlign: 'center' }}>{success}</p>}
+            {error && <p style={{ color: colors.danger, marginTop: '16px', fontSize: '14px', textAlign: 'center' }}>{error}</p>}
+          </form>
+
+          <p style={{ textAlign: 'center', marginTop: '24px', color: colors.gray, fontSize: '14px' }}>
+            Already have an account? <Link to="/login" style={{ color: colors.primary, textDecoration: 'none', fontWeight: '600' }}>Sign In</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
