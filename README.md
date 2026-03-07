@@ -2,21 +2,23 @@
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-success)](https://opengov-frontend.onrender.com)
 [![Backend API](https://img.shields.io/badge/API-Docs-blue)](https://opengovnew.onrender.com/docs)
-[![Video Demo](https://img.shields.io/badge/Video-Demo-red)](YOUR_VIDEO_LINK_HERE)
+[![Video Demo](https://img.shields.io/badge/Video-Demo-red)](https://drive.google.com/file/d/1bXiCdM_D9eqMhp5sxQbF0FDk0U0SX9KI/view?usp=sharing)
 
 A modern web application for transparent government financial management and citizen engagement built with React, FastAPI, and AI-powered insights.
 
-## 🌐 Live Deployment
+## Live Deployment
 
 - **Frontend:** https://opengov-frontend.onrender.com
 - **Backend API:** https://opengovnew.onrender.com
 - **API Documentation:** https://opengovnew.onrender.com/docs
 
-## 🎥 Demo Video
+## Demo Video
 
-[5-Minute Demo Video](YOUR_VIDEO_LINK_HERE) - Showcasing core functionalities
+[5-Minute Demo Video](https://drive.google.com/file/d/1bXiCdM_D9eqMhp5sxQbF0FDk0U0SX9KI/view?usp=sharing) - Showcasing core functionalities
 
-## ✨ Core Features
+![Screenshot of the System Features](https://github.com/CollinsAnyona/opengovnew/issues/1#issuecomment-4016263414)
+
+## Core Features
 
 ### 1. Budget Transparency Dashboard
 - Real-time budget tracking across government sectors
@@ -47,7 +49,7 @@ A modern web application for transparent government financial management and cit
 - **Admin**: Moderate content, view analytics, respond to feedback
 - **Super Admin**: Full system control, user management, budget creation
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **Framework:** FastAPI (Python 3.11)
@@ -64,7 +66,7 @@ A modern web application for transparent government financial management and cit
 - **Charts:** Recharts 3.7
 - **HTTP Client:** Axios
 
-## 📦 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 - Python 3.11+
@@ -126,40 +128,40 @@ Frontend will run on: http://localhost:5173
    - **Email:** collins@opengov.ke
    - **Password:** Collins.anyona04
 
-## 🧪 Testing Strategies
+## Testing Strategies
 
 ### 1. Functional Testing
-- ✅ User authentication (login/logout)
-- ✅ Role-based access control (citizen/admin/super_admin)
-- ✅ CRUD operations (budgets, feedback, forum posts)
-- ✅ AI moderation and insights generation
-- ✅ Email notification delivery
+- User authentication (login/logout)
+- Role-based access control (citizen/admin/super_admin)
+- CRUD operations (budgets, feedback, forum posts)
+- AI moderation and insights generation
+- Email notification delivery
 
 ### 2. Integration Testing
-- ✅ Frontend-Backend API communication
-- ✅ Database operations (SQLite)
-- ✅ External API integration (Google Gemini)
-- ✅ SMTP email service integration
+- Frontend-Backend API communication
+- Database operations (SQLite)
+- External API integration (Google Gemini)
+- SMTP email service integration
 
 ### 3. Performance Testing
-- ✅ Page load times (<2s on local, ~30s cold start on Render free tier)
-- ✅ API response times (<500ms for most endpoints)
-- ✅ Database query optimization
-- ✅ Frontend bundle size optimization
+- Page load times (<2s on local, ~30s cold start on Render free tier)
+- API response times (<500ms for most endpoints)
+- Database query optimization
+- Frontend bundle size optimization
 
 ### 4. Cross-Platform Testing
-- ✅ Desktop browsers (Chrome, Firefox, Edge, Safari)
-- ✅ Mobile responsive design (tested on various screen sizes)
-- ✅ Different OS (Windows, macOS, Linux)
+- Desktop browsers (Chrome, Firefox, Edge, Safari)
+- Mobile responsive design (tested on various screen sizes)
+- Different OS (Windows, macOS, Linux)
 
 ### 5. Security Testing
-- ✅ JWT token authentication
-- ✅ Password hashing (bcrypt)
-- ✅ CORS configuration
-- ✅ SQL injection prevention (SQLAlchemy ORM)
-- ✅ XSS protection
+- JWT token authentication
+- Password hashing (bcrypt)
+- CORS configuration
+- SQL injection prevention (SQLAlchemy ORM)
+- XSS protection
 
-## 📊 Test Data Values
+## Test Data Values
 
 ### Sample Users
 - **Super Admin:** collins@opengov.ke / Collins.anyona04
@@ -173,7 +175,7 @@ Frontend will run on: http://localhost:5173
 - **Feedback:** Various citizen submissions with different statuses
 - **Forum Posts:** Community discussions on governance topics
 
-## 🚀 Deployment
+## Deployment
 
 ### Production Deployment (Render)
 
@@ -185,7 +187,7 @@ The application is deployed on Render with:
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 
-## 📈 Performance Metrics
+## Performance Metrics
 
 ### Local Development
 - Backend startup: ~2 seconds
@@ -199,9 +201,9 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 - Database queries: <100ms
 - Frontend CDN delivery: <2 seconds
 
-## 🎯 Project Objectives Achievement
+## Project Objectives Achievement
 
-### ✅ Achieved Objectives
+### Achieved Objectives
 1. **Budget Transparency:** Real-time visualization of government budgets
 2. **Citizen Engagement:** Feedback system with status tracking
 3. **AI Integration:** Automated content moderation and insights
@@ -211,7 +213,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 7. **Responsive Design:** Mobile-friendly interface
 8. **Production Deployment:** Live on Render with HTTPS
 
-### 🔄 Future Enhancements
+### Future Enhancements
 1. **Mobile App:** Native iOS/Android applications
 2. **Advanced Analytics:** Predictive budget forecasting
 3. **Multi-Language:** Support for local languages
@@ -221,7 +223,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 7. **Advanced Search:** Full-text search across all content
 8. **Audit Trail:** Comprehensive logging system
 
-## 📝 API Endpoints
+## API Endpoints
 
 ### Authentication
 - `POST /auth/login` - User login
@@ -252,22 +254,22 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 
 Full API documentation: https://opengovnew.onrender.com/docs
 
-## 🤝 Contributing
+## Contributing
 
 This is a capstone project. For inquiries, contact the development team.
 
-## 📄 License
+## License
 
 MIT License - See LICENSE file for details
 
-## 👥 Team
+## Team
 
 - **Developer:** Collins Anyona
-- **Institution:** [Your University]
+- **Institution:** African Leadership University
 - **Course:** Capstone Project 2026
-- **Supervisor:** [Supervisor Name]
+- **Supervisor:** Pelin Mutanguha
 
-## 📞 Support
+## Support
 
 For issues or questions:
 - GitHub Issues: https://github.com/CollinsAnyona/opengovnew/issues
