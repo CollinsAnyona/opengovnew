@@ -48,8 +48,17 @@ function Register() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem('access_token')) {
-      navigate('/dashboard');
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    try {
+      const payload = JSON.parse(window.atob(token.split('.')[1]));
+      if (payload.exp * 1000 > Date.now()) {
+        navigate('/dashboard');
+      } else {
+        localStorage.removeItem('access_token');
+      }
+    } catch {
+      localStorage.removeItem('access_token');
     }
   }, [navigate]);
 
