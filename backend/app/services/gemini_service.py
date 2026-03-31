@@ -5,10 +5,8 @@ import json
 from typing import Dict, Optional
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Configure Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
     client = genai.Client(api_key=GEMINI_API_KEY)
@@ -16,25 +14,21 @@ else:
     client = None
     print("WARNING: GEMINI_API_KEY not found in environment variables")
 
+MODEL = 'gemini-2.0-flash-lite'
+
 class GeminiAIService:
     """Google Gemini AI service for OpenGov platform"""
     
     @staticmethod
     def _get_model():
-        """Get Gemini client instance"""
         if not client:
             return None
         return client
     
     @staticmethod
     def moderate_content(content: str, content_type: str = "general") -> Dict:
-        """
-        Moderate user-generated content using Gemini AI
-        Returns: {is_flagged: bool, reason: str, confidence: float, category: str}
-        """
         model = GeminiAIService._get_model()
         if not model:
-            # Fallback to basic moderation
             return GeminiAIService._basic_moderation(content)
         
         try:
@@ -59,10 +53,7 @@ Respond in JSON format:
     "severity": "low|medium|high"
 }}"""
             
-            response = model.models.generate_content(
-                model='gemini-2.0-flash-exp',
-                contents=[prompt]
-            )
+            response = model.models.generate_content(model=MODEL, contents=[prompt])
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))
             return result
         except Exception as e:
@@ -71,10 +62,6 @@ Respond in JSON format:
     
     @staticmethod
     def analyze_feedback(feedback_text: str, sector: str, context: Optional[Dict] = None) -> Dict:
-        """
-        Analyze citizen feedback using Gemini AI with contextual data
-        Returns: {summary: str, sentiment: str, topics: list, priority: str, confidence: float, personalized_response: str}
-        """
         model = GeminiAIService._get_model()
         if not model:
             return {
@@ -115,10 +102,7 @@ Provide analysis in JSON format:
     "personalized_response": "A warm, personalized 2-3 sentence response acknowledging their specific concern and referencing the real budget/spending data if relevant. Be empathetic and actionable."
 }}"""
             
-            response = model.models.generate_content(
-                model='gemini-2.0-flash-exp',
-                contents=[prompt]
-            )
+            response = model.models.generate_content(model=MODEL, contents=[prompt])
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))
             return result
         except Exception as e:
@@ -134,10 +118,6 @@ Provide analysis in JSON format:
     
     @staticmethod
     def generate_budget_insights(budget_data: Dict, feedback_summary: Optional[Dict] = None) -> str:
-        """
-        Generate AI insights about budget data with citizen feedback context
-        Returns: Human-readable insights text
-        """
         model = GeminiAIService._get_model()
         if not model:
             return "Budget data analysis unavailable."
@@ -168,10 +148,7 @@ Provide a warm, conversational analysis that:
 
 Tone: Friendly, transparent, empowering. Use Kenyan Shillings (KSh) format. Keep under 200 words."""
             
-            response = model.models.generate_content(
-                model='gemini-2.0-flash-exp',
-                contents=[prompt]
-            )
+            response = model.models.generate_content(model=MODEL, contents=[prompt])
             return response.text
         except Exception as e:
             print(f"Gemini budget insights error: {e}")
@@ -179,9 +156,6 @@ Tone: Friendly, transparent, empowering. Use Kenyan Shillings (KSh) format. Keep
     
     @staticmethod
     def explain_budget_to_citizen(budget_amount: float, sector: str, year: int) -> str:
-        """
-        Generate citizen-friendly explanation of budget allocation
-        """
         model = GeminiAIService._get_model()
         if not model:
             return f"The government allocated KSh {budget_amount:,.0f} for {sector} in {year}."
@@ -200,10 +174,7 @@ Provide:
 
 Keep it under 100 words, friendly tone, avoid jargon."""
             
-            response = model.models.generate_content(
-                model='gemini-2.0-flash-exp',
-                contents=[prompt]
-            )
+            response = model.models.generate_content(model=MODEL, contents=[prompt])
             return response.text
         except Exception as e:
             print(f"Gemini explanation error: {e}")
@@ -211,9 +182,6 @@ Keep it under 100 words, friendly tone, avoid jargon."""
     
     @staticmethod
     def detect_spending_anomalies(expenditure_data: list) -> Dict:
-        """
-        Detect unusual spending patterns using AI
-        """
         model = GeminiAIService._get_model()
         if not model:
             return {"anomalies": [], "insights": "Analysis unavailable"}
@@ -222,7 +190,7 @@ Keep it under 100 words, friendly tone, avoid jargon."""
             prompt = f"""Analyze these government expenditures for anomalies or unusual patterns.
 
 Expenditure Data:
-{json.dumps(expenditure_data[:50], indent=2)}  # Limit to 50 records
+{json.dumps(expenditure_data[:50], indent=2)}
 
 Identify:
 1. Unusual spending amounts
@@ -239,10 +207,7 @@ Respond in JSON:
     "recommendations": ["list of recommendations"]
 }}"""
             
-            response = model.models.generate_content(
-                model='gemini-2.0-flash-exp',
-                contents=[prompt]
-            )
+            response = model.models.generate_content(model=MODEL, contents=[prompt])
             result = json.loads(response.text.strip().replace('```json', '').replace('```', ''))
             return result
         except Exception as e:
@@ -251,7 +216,6 @@ Respond in JSON:
     
     @staticmethod
     def _basic_moderation(content: str) -> Dict:
-        """Fallback basic moderation when Gemini is unavailable"""
         text = content.lower()
         flagged_words = ['spam', 'hate', 'inappropriate', 'offensive', 'scam', 'fraud']
         is_flagged = any(word in text for word in flagged_words)

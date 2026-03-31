@@ -217,6 +217,10 @@ function LandingPage() {
           <p style={{ color: colors.gray, fontSize: '14px', marginBottom: '16px' }}>
             Empowering Kenyan citizens through transparent governance
           </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <Link to="/privacy-policy" style={{ color: colors.gray, fontSize: '14px', textDecoration: 'none' }}>Privacy Policy</Link>
+            <Link to="/terms" style={{ color: colors.gray, fontSize: '14px', textDecoration: 'none' }}>Terms &amp; Conditions</Link>
+          </div>
           <p style={{ color: colors.lightGray, fontSize: '13px' }}>
             © 2026 OpenGov Kenya. Built for the people.
           </p>

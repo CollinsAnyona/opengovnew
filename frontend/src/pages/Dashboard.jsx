@@ -224,7 +224,7 @@ function Dashboard() {
     <div style={{ minHeight: '100vh', background: colors.background }}>
       {/* Header - eCitizen style */}
       <div style={{ background: colors.primary, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '16px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '12px clamp(16px, 4vw, 40px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <h1 style={{ color: colors.white, fontSize: '20px', fontWeight: '600', margin: '0' }}>
               OpenGov Kenya
@@ -236,7 +236,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '30px 40px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(16px, 4vw, 30px) clamp(16px, 4vw, 40px)' }}>
         {/* Sector Selector */}
         <div style={{ background: colors.white, borderRadius: '8px', padding: '20px', marginBottom: '20px', border: '1px solid ' + colors.border }}>
           <label style={{ display: 'block', color: colors.dark, fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
@@ -417,18 +417,19 @@ function Dashboard() {
               </button>
             </div>
             {showTrendChart && (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={trendData} margin={{ left: 20, right: 20, top: 10, bottom: 10 }}>
+              <div style={{ width: '100%', height: '280px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData} margin={{ left: 0, right: 10, top: 10, bottom: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
                   <XAxis 
                     dataKey="year" 
                     stroke={colors.gray} 
                     style={{ fontSize: '13px', fontWeight: 600 }} 
                   />
-                  <YAxis 
+                    <YAxis 
                     stroke={colors.gray} 
                     style={{ fontSize: '12px', fontWeight: 600 }}
-                    width={80}
+                    width={60}
                     tickFormatter={(value) => {
                       if (value >= 1000000000) return `${(value / 1000000000).toFixed(1)}B`;
                       if (value >= 1000000) return `${(value / 1000000).toFixed(0)}M`;
@@ -457,6 +458,7 @@ function Dashboard() {
                   />
                 </LineChart>
               </ResponsiveContainer>
+              </div>
             )}
           </div>
         )}
@@ -607,7 +609,7 @@ function Dashboard() {
 
         {/* Charts Section */}
         <div style={{ marginBottom: '30px' }}>
-          <div style={{ background: colors.white, border: '1px solid ' + colors.border, borderRadius: '12px', padding: '28px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
+          <div style={{ background: colors.white, border: '1px solid ' + colors.border, borderRadius: '12px', padding: 'clamp(16px, 3vw, 28px)', boxShadow: '0 2px 4px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                 <div>
@@ -665,15 +667,16 @@ function Dashboard() {
               </div>
             </div>
             {budgetChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={320}>
+              <div style={{ width: '100%', height: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
                 {chartType === 'bar' ? (
-                  <BarChart data={budgetChartData} margin={{ left: 20, right: 20, top: 10, bottom: 10 }}>
+                  <BarChart data={budgetChartData} margin={{ left: 0, right: 10, top: 10, bottom: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={colors.border} vertical={false} />
                     <XAxis dataKey="year" stroke={colors.gray} style={{ fontSize: '12px', fontWeight: 600 }} />
                     <YAxis 
                       stroke={colors.gray} 
                       style={{ fontSize: '12px', fontWeight: 600 }} 
-                      width={70}
+                      width={60}
                       tickFormatter={(value) => {
                         if (value >= 1000000000) return `${(value / 1000000000).toFixed(1)}B`;
                         if (value >= 1000000) return `${(value / 1000000).toFixed(0)}M`;
@@ -690,13 +693,13 @@ function Dashboard() {
                     <Bar dataKey="spent" fill={colors.danger} name="Spent" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 ) : (
-                  <LineChart data={budgetChartData} margin={{ left: 20, right: 20, top: 10, bottom: 10 }}>
+                  <LineChart data={budgetChartData} margin={{ left: 0, right: 10, top: 10, bottom: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={colors.border} vertical={false} />
                     <XAxis dataKey="year" stroke={colors.gray} style={{ fontSize: '12px', fontWeight: 600 }} />
                     <YAxis 
                       stroke={colors.gray} 
                       style={{ fontSize: '12px', fontWeight: 600 }} 
-                      width={70}
+                      width={60}
                       tickFormatter={(value) => {
                         if (value >= 1000000000) return `${(value / 1000000000).toFixed(1)}B`;
                         if (value >= 1000000) return `${(value / 1000000).toFixed(0)}M`;
@@ -730,6 +733,7 @@ function Dashboard() {
                   </LineChart>
                 )}
               </ResponsiveContainer>
+              </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '80px 20px', color: colors.lightGray }}>
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={colors.border} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 12px' }}>
@@ -742,7 +746,7 @@ function Dashboard() {
             )}
           </div>
 
-          <div style={{ background: colors.white, border: '1px solid ' + colors.border, borderRadius: '12px', padding: '28px', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ background: colors.white, border: '1px solid ' + colors.border, borderRadius: '12px', padding: 'clamp(16px, 3vw, 28px)', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ marginBottom: '24px' }}>
               <h3 style={{ color: colors.dark, fontSize: '18px', fontWeight: '700', margin: '0 0 4px 0' }}>
                 Budget Distribution by County
@@ -759,8 +763,9 @@ function Dashboard() {
                     </div>
                   ))}
                 </div>
-                <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={budgetByCounty} margin={{ left: 20, right: 20, top: 10, bottom: 100 }}>
+                <div style={{ width: '100%', height: '320px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={budgetByCounty} margin={{ left: 0, right: 10, top: 10, bottom: 100 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={colors.border} vertical={false} />
                     <XAxis 
                       dataKey="name" 
@@ -775,7 +780,7 @@ function Dashboard() {
                     <YAxis 
                       stroke={colors.gray} 
                       style={{ fontSize: '12px', fontWeight: 600 }}
-                      width={70}
+                      width={60}
                       tickFormatter={(value) => {
                         if (value >= 1000000000) return `${(value / 1000000000).toFixed(1)}B`;
                         if (value >= 1000000) return `${(value / 1000000).toFixed(0)}M`;
@@ -799,6 +804,7 @@ function Dashboard() {
                     ))}
                   </BarChart>
                 </ResponsiveContainer>
+                </div>
               </>
             ) : (
               <div style={{ textAlign: 'center', padding: '80px 20px', color: colors.lightGray }}>

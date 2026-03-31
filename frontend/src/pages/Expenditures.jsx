@@ -203,8 +203,9 @@ function Expenditures() {
                   <span style={{ fontSize: '12px', color: colors.gray, fontWeight: '500' }}>Amount Spent</span>
                 </div>
               </div>
-              <ResponsiveContainer width="100%" height={450}>
-                <LineChart data={sectorUtilization} margin={{ left: 20, right: 20, top: 10, bottom: 60 }}>
+              <div style={{ width: '100%', height: '450px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sectorUtilization} margin={{ left: 0, right: 10, top: 10, bottom: 60 }}>
                   <defs>
                     <linearGradient id="budgetGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={colors.primary} stopOpacity={0.3} />
@@ -272,6 +273,7 @@ function Expenditures() {
                   />
                 </LineChart>
               </ResponsiveContainer>
+              </div>
             </>
           ) : (
             <div style={{ textAlign: 'center', padding: '80px 20px', color: colors.lightGray }}>
@@ -334,8 +336,9 @@ function Expenditures() {
                       <span style={{ fontSize: '12px', color: colors.gray, fontWeight: '500' }}>Remaining</span>
                     </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={450}>
-                    <BarChart data={yearlyData} margin={{ left: 20, right: 20, top: 10, bottom: 10 }}>
+                  <div style={{ width: '100%', height: '450px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={yearlyData} margin={{ left: 0, right: 10, top: 10, bottom: 10 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={colors.border} vertical={false} />
                       <XAxis 
                         dataKey="year" 
@@ -367,6 +370,7 @@ function Expenditures() {
                       <Bar dataKey="remaining" fill={colors.success} name="Remaining" radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
+                  </div>
                   
                   {/* Utilization Summary Cards */}
                   <div style={{ display: 'flex', gap: '12px', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid ' + colors.border, overflowX: 'auto' }}>

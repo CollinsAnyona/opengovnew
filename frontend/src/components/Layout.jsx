@@ -233,6 +233,13 @@ const Layout = ({ children }) => {
         minWidth: 0
       }}>
         {children}
+        <footer style={{ borderTop: '1px solid #e5e7eb', padding: '20px 40px', textAlign: 'center', background: '#ffffff', marginTop: '40px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', flexWrap: 'wrap' }}>
+            <Link to="/privacy-policy" style={{ color: '#6b7280', fontSize: '13px', textDecoration: 'none' }}>Privacy Policy</Link>
+            <Link to="/terms" style={{ color: '#6b7280', fontSize: '13px', textDecoration: 'none' }}>Terms &amp; Conditions</Link>
+          </div>
+          <p style={{ color: '#9ca3af', fontSize: '12px', margin: '8px 0 0' }}>© 2026 OpenGov Kenya. Built for the people.</p>
+        </footer>
       </main>
 
       <style>{`

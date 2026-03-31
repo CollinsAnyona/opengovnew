@@ -266,7 +266,8 @@ const Admin = () => {
             <p style={{ color: colors.gray, fontSize: '13px', margin: '0' }}>Distribution of feedback by status</p>
           </div>
           {feedbackByStatus.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <div style={{ width: '100%', height: '300px' }}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={feedbackByStatus}
@@ -286,6 +287,7 @@ const Admin = () => {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+            </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '80px 20px', color: colors.lightGray }}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={colors.border} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 12px' }}>

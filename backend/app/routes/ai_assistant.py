@@ -96,23 +96,32 @@ Respond naturally to their question."""
             else:
                 ai_response = f"Hello! I'm here to help with government transparency questions. Feel free to ask about budgets, spending, or any other topic. How can I assist you today?"
         else:
-            try:
-                response = model.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=[prompt]
-                )
-                ai_response = response.text
-            except Exception as e:
-                error_str = str(e)
-                print(f"Gemini API error: {error_str}")
-                
-                # Check if it's a quota/rate limit error
-                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
-                    ai_response = "⚠️ AI assistant is temporarily unavailable due to high demand. However, I can still help! " + \
-                                f"Kenya's total budget is KSh {budget_result:,.0f} with KSh {expenditure_result:,.0f} spent ({utilization_rate:.1f}% utilization). " + \
-                                "You can explore the dashboard for detailed budget breakdowns by sector, county, and year."
-                else:
-                    ai_response = f"I'm experiencing technical difficulties, but here's what I know: Kenya's total budget is KSh {budget_result:,.0f} with {utilization_rate:.1f}% utilization. Please try again shortly."
+            import time
+            ai_response = None
+            models_to_try = ['gemini-2.0-flash-lite', 'gemini-2.5-flash-lite']
+            for attempt in range(3):
+                for model_name in models_to_try:
+                    try:
+                        response = model.models.generate_content(
+                            model=model_name,
+                            contents=[prompt]
+                        )
+                        ai_response = response.text
+                        break
+                    except Exception as e:
+                        error_str = str(e)
+                        print(f"Gemini API error ({model_name}): {error_str}")
+                        if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                            continue
+                        break
+                if ai_response:
+                    break
+                time.sleep(2 ** attempt)
+            if not ai_response:
+                ai_response = (f"The AI assistant is temporarily rate-limited. Here's what the data shows: "
+                               f"Kenya's total budget is KSh {budget_result:,.0f} with "
+                               f"KSh {expenditure_result:,.0f} spent ({utilization_rate:.1f}% utilization). "
+                               f"Please try again in a few seconds.")
         
         # Check user's original question only (not AI response)
         user_question = chat.message.lower().strip()
