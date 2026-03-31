@@ -18,7 +18,7 @@ function ForumPost() {
   useEffect(() => {
     fetchPost();
     // Get current user ID from token
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
