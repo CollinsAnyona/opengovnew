@@ -50,11 +50,11 @@ def send_email(to_email: str, subject: str, body: str, html_body: Optional[str] 
             print(f"Sending message...")
             server.send_message(msg)
         
-        print(f"✓ Email sent successfully!")
+        print(f"[OK] Email sent successfully!")
         print(f"=== END SMTP DEBUG ===\n")
         return True
     except Exception as e:
-        print(f"✗ Failed to send email: {e}")
+        print(f"[FAIL] Failed to send email: {e}")
         import traceback
         traceback.print_exc()
         print(f"=== END SMTP DEBUG ===\n")
