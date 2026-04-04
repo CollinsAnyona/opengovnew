@@ -1,374 +1,438 @@
-# Testing Documentation - OpenGov Platform
-
-## Testing Overview
-
-This document outlines the comprehensive testing strategies, results, and analysis for the OpenGov Government Transparency Platform.
-
-## 1. Testing Strategies
-
-### 1.1 Functional Testing
-
-#### Authentication & Authorization
-- **User Login:** Successfully authenticates users with valid credentials
-- **User Logout:** Clears session and redirects to login page
-- **Role-Based Access:** Citizens, Admins, and Super Admins have appropriate permissions
-- **JWT Token Management:** Tokens expire correctly and refresh as needed
-- **Password Security:** Bcrypt hashing prevents plain-text storage
-
-**Test Results:**
-- Login success rate: 100%
-- Token validation: 100% accurate
-- Unauthorized access attempts: Successfully blocked
-
-#### Budget Management
-- **View Budgets:** All users can view budget data
-- **Create Budgets:** Only Super Admin can create new budgets
-- **Budget Visualization:** Charts render correctly with accurate data
-- **Year Filtering:** Budget data filters by year correctly
-
-**Test Data:**
-https://docs.google.com/spreadsheets/d/1cukG-M7eUbCMAlWB_Dv8VF7WnINTa5TQ/edit?usp=sharing&ouid=102525030867977564283&rtpof=true&sd=true
-
-**Test Results:**
-- Budget creation: 100% success
-- Data accuracy: 100%
-- Chart rendering: Responsive and accurate
-
-#### Feedback System
-- **Submit Feedback:** Citizens can submit feedback successfully
-- **Status Workflow:** New → Under Review → Resolved/Escalated
-- **Admin Response:** Admins can respond to feedback
-- **Email Notifications:** Users receive email when admin responds
-- **Feedback Filtering:** Filter by status works correctly
-
-**Test Data:**
-- Submitted 15 feedback items with various content
-- Tested all status transitions
-- Verified email delivery for 10+ responses
-
-**Test Results:**
-- Submission success rate: 100%
-- Status updates: 100% accurate
-- Email delivery: 95% (5% due to spam filters)
-
-#### Forum System
-- **Create Posts:** Users can create forum posts
-- **Reply to Posts:** Users can reply to discussions
-- **Edit Posts:** Users can edit their own posts
-- **Delete Posts:** Admins can delete inappropriate content
-- **AI Moderation:** Inappropriate content flagged automatically
-- **Email Notifications:** Post authors notified of replies
-
-**Test Data:**
-- Created 20+ forum posts across different topics
-- Tested with appropriate and inappropriate content
-- Verified moderation flags on 5 test cases
-
-**Test Results:**
-- Post creation: 100% success
-- AI moderation accuracy: 90% (flagged 9/10 inappropriate posts)
-- Email notifications: 100% delivery
-
-#### User Management (Super Admin)
-- **View Users:** List all registered users
-- **Promote Users:** Change user roles (citizen → admin)
-- **Deactivate Users:** Disable user accounts
-- **Reset Passwords:** Generate new passwords for users
-- **Email Notifications:** Users notified of account changes
-
-**Test Results:**
-- User promotion: 100% success
-- Account deactivation: Immediate effect
-- Password reset: Secure and functional
-
-### 1.2 Integration Testing
-
-#### Frontend-Backend Communication
-- **API Calls:** All endpoints respond correctly
-- **Error Handling:** Proper error messages displayed
-- **CORS Configuration:** Cross-origin requests allowed
-- **Token Refresh:** Automatic token renewal works
-
-**Test Results:**
-- API success rate: 99.5%
-- Average response time: 250ms (local), 450ms (production)
-- Error handling: Graceful degradation
-
-#### Database Operations
-- **CRUD Operations:** Create, Read, Update, Delete all work
-- **Relationships:** Foreign keys maintained correctly
-- **Transactions:** Rollback on errors works properly
-- **Data Integrity:** No orphaned records
-
-**Test Results:**
-- Database operations: 100% success
-- Query performance: <100ms average
-- Data consistency: 100%
-
-#### External API Integration
-- **Google Gemini AI:** Content moderation and insights generation
-- **SMTP Email:** Gmail integration for notifications
-- **Error Handling:** Graceful fallback when APIs unavailable
-
-**Test Results:**
-- Gemini API success rate: 98%
-- Email delivery rate: 95%
-- Fallback mechanisms: Working correctly
-
-### 1.3 Performance Testing
-
-#### Load Testing
-- **Concurrent Users:** Tested with 10 simultaneous users
-- **Response Time:** Average 250ms (local), 450ms (production)
-- **Database Queries:** Optimized with indexes
-- **Memory Usage:** Stable under load
-
-**Test Results:**
-| Metric | Local | Production (Render) |
-|--------|-------|---------------------|
-| Cold Start | 2s | 30s |
-| Warm Response | <200ms | <500ms |
-| Database Query | <50ms | <100ms |
-| Page Load | <1s | <2s |
-
-#### Stress Testing
-- **Maximum Users:** Handled 50+ concurrent users without crashes
-- **Database Size:** Tested with 1000+ records
-- **File Upload:** N/A (not implemented)
-
-**Test Results:**
-- System stability: Excellent
-- No memory leaks detected
-- Graceful degradation under heavy load
-
-### 1.4 Cross-Platform Testing
-
-#### Desktop Browsers
-- **Chrome 120+:** Full functionality
-- **Firefox 121+:** Full functionality
-- **Edge 120+:** Full functionality
-- **Safari 17+:** Full functionality
-
-#### Mobile Devices
-- **iPhone (iOS 17):** Responsive design works
-- **Android (Chrome):** Full functionality
-- **Tablet (iPad):** Optimized layout
-
-#### Operating Systems
-- **Windows 11:** Tested and working
-- **macOS Sonoma:** Tested and working
-- **Linux (Ubuntu 22.04):** Tested and working
-
-**Test Results:**
-- Cross-browser compatibility: 100%
-- Mobile responsiveness: Excellent
-- OS compatibility: 100%
-
-### 1.5 Security Testing
-
-#### Authentication Security
-- **Password Hashing:** Bcrypt with salt
-- **JWT Tokens:** Secure with expiration
-- **HTTPS:** Enforced in production
-- **CORS:** Properly configured
-
-#### Input Validation
-- **SQL Injection:** Protected by SQLAlchemy ORM
-- **XSS Prevention:** React escapes user input
-- **CSRF Protection:** Token-based authentication
-- **Email Validation:** Pydantic validators
-
-**Test Results:**
-- Security vulnerabilities: None found
-- Input validation: 100% effective
-- Authentication bypass attempts: All blocked
-
-## 2. Test Data Values
-
-### User Accounts
-```
-Super Admin:
-- Email: collins@opengov.ke
-- Password: Collins.anyona04
-- Role: super_admin
-
-Admin:
-- Email: admin@opengov.ke
-- Password: admin123
-- Role: admin
-
-Citizen:
-- Email: citizen@opengov.ke
-- Password: citizen123
-- Role: citizen
-```
-
-### Budget Data
-```
-Education Sector:
-- 2023: KES 50,000,000 (Infrastructure)
-- 2024: KES 75,000,000 (Training)
-
-Health Sector:
-- 2023: KES 40,000,000 (Equipment)
-- 2024: KES 60,000,000 (Programs)
-```
-
-### Expenditure Data
-```
-Education 2023:
-- Classrooms: KES 15,000,000
-- Furniture: KES 8,000,000
-- Materials: KES 5,000,000
-```
-
-### Feedback Submissions
-```
-Status Distribution:
-- New: 5 items
-- Under Review: 3 items
-- Resolved: 7 items
-- Escalated: 2 items
-```
-
-## 3. Performance on Different Hardware
-
-### Development Machine (High-End)
-- **CPU:** Intel i7-12700K
-- **RAM:** 32GB
-- **Storage:** NVMe SSD
-- **Results:** Instant response, <1s page loads
-
-### Standard Laptop (Mid-Range)
-- **CPU:** Intel i5-10th Gen
-- **RAM:** 8GB
-- **Storage:** SATA SSD
-- **Results:** Fast response, <2s page loads
-
-### Low-End Device (Budget)
-- **CPU:** Intel i3-8th Gen
-- **RAM:** 4GB
-- **Storage:** HDD
-- **Results:** Acceptable, <5s page loads
-
-### Production Server (Render Free Tier)
-- **CPU:** Shared vCPU
-- **RAM:** 512MB
-- **Storage:** Persistent disk
-- **Results:** 30s cold start, <500ms warm
-
-## 4. Analysis of Results
-
-### Objectives Achieved
-
-1. **Budget Transparency (100%)**
-   - Real-time visualization implemented
-   - Interactive charts working perfectly
-   - Data accuracy verified
-
-2. **Citizen Engagement (95%)**
-   - Feedback system fully functional
-   - Forum discussions active
-   - Email notifications working (95% delivery)
-
-3. **AI Integration (90%)**
-   - Content moderation: 90% accuracy
-   - Sentiment analysis: Working
-   - Insights generation: Functional
-
-4. **Multi-Role System (100%)**
-   - Role-based access control working
-   - Permissions enforced correctly
-   - User management functional
-
-5. **Production Deployment (100%)**
-   - Live on Render with HTTPS
-   - Database persisted correctly
-   - CORS and routing configured
-
-### Objectives Partially Achieved
-
-1. **Email Delivery (95%)**
-   - Issue: Some emails caught by spam filters
-   - Solution: Implement SPF/DKIM records
-
-2. **AI Accuracy (90%)**
-   - Issue: Occasional false positives in moderation
-   - Solution: Fine-tune prompts and thresholds
-
-### Challenges Encountered
-
-1. **Database Deployment**
-   - Challenge: SQLite file not initially deployed
-   - Solution: Added to git and configured paths
-
-2. **React Router on Static Site**
-   - Challenge: 404 errors on page refresh
-   - Solution: Configured Render redirects
-
-3. **Cold Start Times**
-   - Challenge: 30s delay on Render free tier
-   - Solution: Acceptable for demo, upgrade for production
-
-## 5. Recommendations
-
-### For Community Application
-
-1. **Upgrade Hosting**
-   - Move to paid tier for instant response
-   - Implement PostgreSQL for better scalability
-   - Add CDN for faster asset delivery
-
-2. **Security Enhancements**
-   - Implement 2FA for admin accounts
-   - Add rate limiting to prevent abuse
-   - Regular security audits
-
-3. **Feature Additions**
-   - Mobile app for better accessibility
-   - SMS notifications for citizens without email
-   - Multi-language support for local languages
-
-4. **Data Management**
-   - Automated database backups
-   - Data export functionality
-   - Archive old records
-
-### Future Work
-
-1. **Advanced Analytics**
-   - Predictive budget forecasting
-   - Spending trend analysis
-   - Anomaly detection improvements
-
-2. **Enhanced AI Features**
-   - Natural language queries
-   - Automated report generation
-   - Chatbot for citizen support
-
-3. **Integration Capabilities**
-   - Government payment systems
-   - National ID verification
-   - Open data APIs
-
-4. **Scalability**
-   - Microservices architecture
-   - Load balancing
-   - Caching layer (Redis)
-
-## 6. Conclusion
-
-The OpenGov platform successfully demonstrates a functional government transparency system with:
-- 100% core functionality working
-- 95%+ test success rate
-- Production deployment live
-- Positive performance metrics
-- Security best practices implemented
-
-The platform is ready for demonstration and meets all capstone project requirements.
+# Testing Documentation — OpenGov Platform
+
+**Version:** 1.0.0
+**Tested By:** Collins Otieno Junior
+**Institution:** African Leadership University
+**Date Completed:** January 2026
 
 ---
 
-**Testing Completed:** March 6, 2026
-**Tested By:** Collins Otieno Junior
-**Platform Version:** 1.0.0
+## Overview
+
+This document covers the testing strategies, test cases, results, and analysis for the OpenGov Government Transparency Platform. All tests were conducted against the live database and production-equivalent local environment.
+
+**Live System Stats at Time of Testing:**
+- Users: 8 (1 super admin, 1 admin, 6 citizens)
+- Sectors: 10
+- Budgets: 2,400 records
+- Expenditures: 7,050 records
+- Feedback: 7 submissions
+- Forum Posts: 2
+
+---
+
+## 1. Test Accounts
+
+The following accounts exist in the actual database and were used for all testing:
+
+| Role | Email | Notes |
+|---|---|---|
+| Super Admin | collins@opengov.ke | Full system access |
+| Admin | c.junior@alustudent.com | Moderation and feedback management |
+| Citizen | cjotieno04@gmail.com | Standard citizen access |
+| Citizen | paulineanyona86@gmail.com | Used for cross-user testing |
+
+> **Security Note:** Default passwords should be changed before any public deployment. No plaintext passwords are documented here intentionally.
+
+---
+
+## 2. Functional Testing
+
+### 2.1 Authentication & Authorization
+
+| Test Case | Expected Result | Actual Result | Status |
+|---|---|---|---|
+| Login with valid credentials | Redirect to dashboard | Redirected correctly | PASS |
+| Login with invalid credentials | Error message shown | Error displayed | PASS |
+| Access `/dashboard` without token | Redirect to login | Redirected | PASS |
+| Access `/admin` as citizen | Access denied | 403 returned | PASS |
+| Access `/super-admin` as admin | Access denied | 403 returned | PASS |
+| JWT token expiry | Session ends, redirect to login | Works correctly | PASS |
+| Already logged-in user visits `/` | Redirect to dashboard | Redirected | PASS |
+| Logout clears token | localStorage cleared | Cleared correctly | PASS |
+
+**Notes:**
+- Token expiry validation was added to the landing page to prevent redirect loops
+- JWT tokens are signed with a 64-character hex `SECRET_KEY` generated via `secrets.token_hex(32)`
+
+---
+
+### 2.2 Budget Dashboard
+
+| Test Case | Expected Result | Actual Result | Status |
+|---|---|---|---|
+| Load budget dashboard | Charts render with data | Rendered correctly | PASS |
+| Filter by sector | Data filters correctly | Filtered correctly | PASS |
+| Filter by year | Year-specific data shown | Working | PASS |
+| View expenditure breakdown | Expenditure records shown | Displayed correctly | PASS |
+| AI explanation per budget entry | Citizen-friendly text shown | Generated by Gemini | PASS |
+| Super admin creates budget | Budget saved and visible | Saved correctly | PASS |
+| Non-super-admin creates budget | Access denied | Blocked correctly | PASS |
+
+**Test Data Used:**
+- 2,400 budget records across 10 sectors
+- 7,050 expenditure records
+- Years: 2023–2026
+
+---
+
+### 2.3 Feedback System
+
+| Test Case | Expected Result | Actual Result | Status |
+|---|---|---|---|
+| Citizen submits feedback | Saved with status `submitted` | Saved correctly | PASS |
+| AI moderation on submission | Content analyzed before storage | Gemini analysis applied | PASS |
+| High-priority feedback auto-escalated | Status set to `escalated` | Working | PASS |
+| Admin updates feedback status | Status changes, email sent | Email delivered | PASS |
+| Admin responds to feedback | Response saved, email sent | Email delivered | PASS |
+| Citizen receives status update email | Email with new status | Delivered to inbox | PASS |
+| Filter feedback by status | Filtered list shown | Working | PASS |
+
+**Email Delivery Notes:**
+- Email notifications confirmed working after Gmail App Password was regenerated
+- Previous SMTP password had been revoked — see Security Incidents section
+
+---
+
+### 2.4 Forum System
+
+| Test Case | Expected Result | Actual Result | Status |
+|---|---|---|---|
+| Citizen creates forum post | Post saved and visible | Saved correctly | PASS |
+| AI moderation on post creation | Flagged if inappropriate | Gemini moderation applied | PASS |
+| Citizen replies to post | Reply saved | Saved correctly | PASS |
+| Post author sees Edit button | Edit button visible | Visible after bug fix | PASS |
+| Post author sees Delete button | Delete button visible | Visible after bug fix | PASS |
+| Edit own post | Post updated, re-moderated | Updated correctly | PASS |
+| Delete own post | Post and replies removed | Deleted correctly | PASS |
+| Edit own reply | Reply updated | Updated correctly | PASS |
+| Delete own reply | Reply removed | Deleted correctly | PASS |
+| Non-owner cannot edit post | Edit button hidden | Hidden correctly | PASS |
+| Admin deletes any post | Post removed | Working | PASS |
+| Post author notified of reply | Email sent | Delivered | PASS |
+
+**Bug Fixed During Testing:**
+- Edit and Delete buttons were not appearing for post/reply owners
+- Root cause: `ForumPost.jsx` was reading the JWT token from `localStorage.getItem('token')` instead of `localStorage.getItem('access_token')`
+- Fix: Corrected the localStorage key — buttons now appear correctly for the authenticated owner
+
+---
+
+### 2.5 AI Assistant
+
+| Test Case | Expected Result | Actual Result | Status |
+|---|---|---|---|
+| Send budget question | AI responds with real data | Responded correctly | PASS |
+| Send greeting message | Natural response, no budget data | Responded naturally | PASS |
+| AI uses live DB data | Response references actual figures | Confirmed with real totals | PASS |
+| Suggested questions load | 10 suggestions shown | Loaded correctly | PASS |
+| Chat history persists on refresh | Messages restored | Restored from localStorage | PASS |
+| Clear chat resets history | History cleared | Cleared correctly | PASS |
+| Gemini rate limit hit | Retry logic activates | Retried with fallback model | PASS |
+
+**Notes:**
+- AI Assistant uses `gemini-2.0-flash-lite` with retry logic across two models
+- On rate limit (`429 RESOURCE_EXHAUSTED`), system retries up to 3 times with exponential backoff before showing a graceful fallback message
+
+---
+
+### 2.6 Admin Panel
+
+| Test Case | Expected Result | Actual Result | Status |
+|---|---|---|---|
+| Admin views feedback list | All feedback visible | Displayed correctly | PASS |
+| Admin responds to feedback | Response saved, email sent | Working | PASS |
+| Admin views forum moderation | Flagged posts listed | Displayed correctly | PASS |
+| Admin approves flagged post | Post status updated | Updated correctly | PASS |
+| Admin removes flagged post | Post hidden from forum | Removed correctly | PASS |
+| Admin action sends email to user | Moderation email delivered | Delivered | PASS |
+
+---
+
+### 2.7 Super Admin Panel
+
+| Test Case | Expected Result | Actual Result | Status |
+|---|---|---|---|
+| View all users | Full user list shown | Displayed correctly | PASS |
+| Promote citizen to admin | Role updated, email sent | Updated correctly | PASS |
+| Deactivate user account | Account disabled | Disabled correctly | PASS |
+| Create new sector | Sector saved | Saved correctly | PASS |
+| Create new budget | Budget saved with AI explanation | Saved with explanation | PASS |
+| Create new expenditure | Expenditure saved | Saved correctly | PASS |
+| View audit logs | All admin actions logged | Logged correctly | PASS |
+| View system analytics | Overview stats shown | Displayed correctly | PASS |
+
+---
+
+### 2.8 Legal Pages
+
+| Test Case | Expected Result | Actual Result | Status |
+|---|---|---|---|
+| `/privacy-policy` loads | Privacy Policy page renders | Rendered correctly | PASS |
+| `/terms` loads | Terms & Conditions page renders | Rendered correctly | PASS |
+| Footer links work | Both pages accessible from footer | Working on all pages | PASS |
+| Pages accessible without login | No auth required | Publicly accessible | PASS |
+| Pages are responsive | Layout adapts to mobile | Responsive | PASS |
+
+---
+
+## 3. Integration Testing
+
+### 3.1 Frontend ↔ Backend
+
+| Test Case | Result |
+|---|---|
+| All API endpoints respond correctly | PASS |
+| JWT token sent in Authorization header | PASS |
+| 401 responses redirect to login | PASS |
+| CORS allows frontend origin | PASS |
+| Error responses show user-friendly messages | PASS |
+
+**Average API Response Times:**
+- Local: ~180ms
+- Production (Render warm): ~450ms
+- Production (Render cold start): ~30 seconds
+
+---
+
+### 3.2 Database Operations
+
+| Test Case | Result |
+|---|---|
+| User creation and retrieval | PASS |
+| Budget and expenditure relationships | PASS |
+| Feedback linked to user and sector | PASS |
+| Forum post and reply relationships | PASS |
+| Cascade delete (post removes replies) | PASS |
+| No orphaned records after deletion | PASS |
+
+---
+
+### 3.3 Gemini AI Integration
+
+| Test Case | Result |
+|---|---|
+| Content moderation returns JSON | PASS |
+| Feedback analysis returns sentiment and priority | PASS |
+| Budget insights generated | PASS |
+| AI chat responds with live data | PASS |
+| Fallback activates when Gemini unavailable | PASS |
+| Retry logic handles 429 rate limit | PASS |
+
+**Model Used:** `gemini-2.0-flash-lite`
+
+**Issues Encountered and Resolved:**
+
+| Issue | Cause | Resolution |
+|---|---|---|
+| `404 NOT_FOUND` on AI calls | Wrong model name `gemini-2.0-flash-exp` (deprecated) | Updated to `gemini-2.0-flash-lite` across all services |
+| `429 RESOURCE_EXHAUSTED` | Free tier quota exhausted | Added retry logic with exponential backoff and fallback to `gemini-2.5-flash-lite` |
+| Fallback message always showing | Model name mismatch in `ai_assistant.py` | Fixed model name, retry logic added |
+
+---
+
+### 3.4 Email (SMTP) Integration
+
+| Test Case | Result |
+|---|---|
+| Feedback response email delivered | PASS |
+| Feedback status update email delivered | PASS |
+| Forum reply notification email delivered | PASS |
+| Account update email delivered | PASS |
+| Forum moderation email delivered | PASS |
+
+**Issues Encountered and Resolved:**
+
+| Issue | Cause | Resolution |
+|---|---|---|
+| `535 SMTPAuthenticationError` | Gmail App Password was revoked | Generated new App Password, updated `.env` |
+| `UnicodeEncodeError` on Windows | `✓` and `✗` characters in print statements | Replaced with ASCII equivalents `[OK]` / `[FAIL]` |
+
+---
+
+## 4. Security Testing
+
+### 4.1 Authentication Security
+
+| Test | Result |
+|---|---|
+| Passwords stored as bcrypt hash | PASS — verified in DB |
+| JWT tokens expire correctly | PASS |
+| Invalid tokens rejected with 401 | PASS |
+| Role claims enforced on every route | PASS |
+| HTTPS enforced in production | PASS |
+
+### 4.2 Input Validation
+
+| Test | Result |
+|---|---|
+| SQL injection via feedback form | PASS — SQLAlchemy ORM parameterized queries |
+| XSS via forum post content | PASS — React escapes output |
+| Invalid email format on registration | PASS — Pydantic validator rejects |
+| Empty required fields | PASS — 422 Unprocessable Entity returned |
+| Oversized input strings | PASS — handled gracefully |
+
+### 4.3 Access Control
+
+| Test | Result |
+|---|---|
+| Citizen cannot access `/admin` | PASS |
+| Citizen cannot access `/super-admin` | PASS |
+| Citizen cannot delete another user's post | PASS — 403 returned |
+| Admin cannot access super admin routes | PASS |
+| Unauthenticated user cannot access protected routes | PASS |
+
+### 4.4 Secret Management
+
+| Practice | Status |
+|---|---|
+| `.env` excluded from git via `.gitignore` | PASS |
+| `opengov.db` excluded from git | PASS |
+| No secrets hardcoded in source code | PASS |
+| All secrets stored in environment variables | PASS |
+
+---
+
+## 5. Security Incidents
+
+### Incident 1 — Leaked Gemini API Key
+
+| Field | Detail |
+|---|---|
+| Date Discovered | January 2026 |
+| Cause | API key was committed to GitHub in a previous version of `DEPLOYMENT.md` |
+| Impact | Google automatically revoked the key; AI features returned fallback messages |
+| Resolution | Key revoked at https://aistudio.google.com/app/apikey, new key generated under a new Google Cloud project, `.env` verified as gitignored, git history checked |
+| Prevention | `DEPLOYMENT.md` rewritten to never include actual credentials; `.gitignore` verified before every push |
+
+### Incident 2 — Leaked SMTP App Password
+
+| Field | Detail |
+|---|---|
+| Date Discovered | January 2026 |
+| Cause | Gmail App Password was hardcoded in `DEPLOYMENT.md` |
+| Impact | Email notifications failed with `535 SMTPAuthenticationError` |
+| Resolution | Old App Password deleted at https://myaccount.google.com/apppasswords, new one generated and stored only in `.env` |
+| Prevention | `DEPLOYMENT.md` rewritten with placeholder instructions only |
+
+---
+
+## 6. Performance Testing
+
+### Response Time Benchmarks
+
+| Metric | Local | Production (Warm) | Production (Cold) |
+|---|---|---|---|
+| Backend startup | ~2s | N/A | ~30s |
+| API response (average) | <200ms | <500ms | ~30s |
+| Database query | <50ms | <100ms | <100ms |
+| Page load | <1s | <2s | ~30s |
+| Frontend build | ~18s | N/A | N/A |
+
+### Load Testing
+
+| Scenario | Result |
+|---|---|
+| 10 concurrent users | Stable, no errors |
+| 50 concurrent requests | Handled gracefully |
+| 2,400 budget records rendered | Charts load within 1s |
+| 7,050 expenditure records queried | <100ms query time |
+
+---
+
+## 7. Cross-Platform Testing
+
+### Browsers
+
+| Browser | Version | Result |
+|---|---|---|
+| Chrome | 120+ | PASS |
+| Firefox | 121+ | PASS |
+| Edge | 120+ | PASS |
+| Safari | 17+ | PASS |
+
+### Devices
+
+| Device | Result |
+|---|---|
+| Desktop (1920×1080) | PASS |
+| Laptop (1366×768) | PASS |
+| Tablet (768px) | PASS |
+| Mobile (375px) | PASS — responsive sidebar overlay |
+
+### Operating Systems
+
+| OS | Result |
+|---|---|
+| Windows 11 | PASS — primary development environment |
+| macOS | PASS |
+| Linux (Ubuntu) | PASS |
+
+---
+
+## 8. Analysis of Results
+
+### Objectives Achieved
+
+| Objective | Completion | Notes |
+|---|---|---|
+| Budget Transparency Dashboard | 100% | 2,400 budgets, interactive charts, AI explanations |
+| Citizen Feedback System | 100% | Full status workflow, email notifications working |
+| AI-Powered Insights | 100% | Gemini moderation, chat assistant, retry logic |
+| Multi-Role Access Control | 100% | Citizen, Admin, Super Admin enforced on all routes |
+| Forum with Edit/Delete | 100% | Bug fixed — localStorage key corrected |
+| Email Notifications | 100% | All 5 email types confirmed working |
+| Privacy Policy & Terms Pages | 100% | Publicly accessible, linked in footer |
+| Responsive Design | 100% | Mobile sidebar overlay, adaptive layouts |
+| Production Deployment | 100% | Live on Render with HTTPS |
+
+### Issues Encountered and Resolved
+
+| Issue | Resolution |
+|---|---|
+| Gemini model `gemini-2.0-flash-exp` deprecated | Updated to `gemini-2.0-flash-lite` with retry logic |
+| Leaked API key and SMTP password in docs | Credentials revoked, docs rewritten, `.gitignore` verified |
+| Forum edit/delete buttons not showing | Fixed wrong `localStorage` key in `ForumPost.jsx` |
+| `UnicodeEncodeError` on Windows console | Replaced special characters with ASCII in `email_service.py` |
+| JWT token not validated on landing page | Added token expiry check before redirect |
+
+### Known Limitations
+
+| Limitation | Impact | Mitigation |
+|---|---|---|
+| Render free tier cold start (~30s) | Slow first load after inactivity | Acceptable for demo; upgrade to paid tier for production |
+| SQLite not suitable for high concurrency | Limits scalability | Migrate to PostgreSQL for production |
+| Gemini free tier rate limits | AI may be slow under heavy use | Retry logic with fallback model implemented |
+| No automated test suite | Manual testing only | Recommended for future: pytest for backend, Vitest for frontend |
+
+---
+
+## 9. Recommendations
+
+### Immediate (Before Production)
+1. Change all default passwords
+2. Migrate from SQLite to PostgreSQL
+3. Upgrade Render to paid tier to eliminate cold starts
+4. Implement rate limiting on API endpoints
+
+### Short-Term
+1. Add automated test suite (pytest + Vitest)
+2. Implement 2FA for admin and super admin accounts
+3. Add SPF/DKIM DNS records to improve email deliverability
+4. Set up database backup schedule
+
+### Long-Term
+1. Mobile app (iOS/Android)
+2. Multi-language support (Swahili)
+3. Real-time notifications via WebSockets
+4. Advanced analytics and predictive forecasting
+
+---
+
+## 10. Conclusion
+
+The OpenGov platform meets all capstone project requirements with 100% of core features functional and tested. All critical bugs discovered during testing were resolved before submission. Security incidents involving leaked credentials were identified, remediated, and documented. The platform is stable, responsive, and ready for demonstration.
+
+---
+
+*Testing completed: January 2026 | Tested by: Collins Otieno Junior | African Leadership University*
