@@ -4,8 +4,11 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import os
+import secrets
 
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+# Require SECRET_KEY in production; fall back to an ephemeral random key for
+# local development (tokens are invalidated on restart).
+SECRET_KEY = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

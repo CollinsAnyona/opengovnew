@@ -28,9 +28,9 @@ The following accounts exist in the actual database and were used for all testin
 | Role | Email | Notes |
 |---|---|---|
 | Super Admin | collins@opengov.ke | Full system access |
-| Admin | c.junior@alustudent.com | Moderation and feedback management |
-| Citizen | cjotieno04@gmail.com | Standard citizen access |
-| Citizen | paulineanyona86@gmail.com | Used for cross-user testing |
+| Admin | admin@opengov.ke | Moderation and feedback management |
+| Citizen | citizen1@opengov.ke | Standard citizen access |
+| Citizen | citizen2@opengov.ke | Used for cross-user testing |
 
 > **Security Note:** Default passwords should be changed before any public deployment. No plaintext passwords are documented here intentionally.
 
